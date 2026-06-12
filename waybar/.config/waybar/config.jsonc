@@ -58,12 +58,18 @@
   },
   "pulseaudio": { "format": "󰕾 {volume}%", "tooltip": false },
   "bluetooth": {
-    "format": "󰕾 {status}",
+    "format": "󰂯 {status}",
     "tooltip": false,
   },
   "battery": {
-    "format": "󰁹 {capacity}%",
+    "interval": 60,
+    "format": "{icon} {capacity}%",
     "tooltip": false,
+    "format-icons": ["󰁺", "󰁻", "󰁼", "󰁽", "󰁾", "󰁿", "󰂀", "󰂁", "󰂂", "󰁹"],
+    "states": {
+      "warning": 20,
+      "critical": 10,
+    },
   },
   "disk": {
     "interval": 60,
@@ -76,6 +82,7 @@
     "format": "{ifname}",
     "format-wifi": "󰖩 {essid}",
     "format-ethernet": "󰈀 {ipaddr}/{cidr}",
+    "format-disconnectes": "",
     "tooltip": false,
   },
   "clock": {

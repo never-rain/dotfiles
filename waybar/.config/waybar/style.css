@@ -10,8 +10,8 @@
 .modules-right {
   border: transparent;
   border-radius: 100px;
-  padding-left: 15px;
-  padding-right: 15px;
+  padding-left: 20px;
+  padding-right: 20px;
   background-color: rgb(48, 52, 70);
   /* padding-top: 50; */
   /* padding-bottom: 50; */
@@ -24,6 +24,13 @@
 }
 .modules-right * {
   color: rgb(202, 158, 230);
+}
+
+#battery.warning {
+  color: orange;
+}
+#battery.critical {
+  color: red;
 }
 
 #backlight-slider slider {
