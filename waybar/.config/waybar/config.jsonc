@@ -38,7 +38,7 @@
   },
   "memory": {
     "interval": 1,
-    "format": "󰘚 {percentage}%",
+    "format": "󰍛 {percentage}%",
     "tooltip": false,
   },
   "backlight/slider": {
@@ -48,7 +48,7 @@
   },
   "backlight": {
     "device": "intel_backlight",
-    "format": "󰍹 {percent}%",
+    "format": "󱩒 {percent}%",
     "tooltip": false,
   },
   "pulseaudio/slider": {
@@ -58,11 +58,11 @@
   },
   "pulseaudio": { "format": "󰕾 {volume}%", "tooltip": false },
   "bluetooth": {
-    "format": " {status}",
+    "format": "󰕾 {status}",
     "tooltip": false,
   },
   "battery": {
-    "format": " {capacity}%",
+    "format": "󰁹 {capacity}%",
     "tooltip": false,
   },
   "disk": {
@@ -79,17 +79,17 @@
     "tooltip": false,
   },
   "clock": {
-    "format": "{:%a, %d. %B %Y %H:%M:%S}",
+    "format": "󰥔 {:%a, %d. %B %Y %H:%M:%S}",
     "interval": 1,
     "tooltip": false,
   },
   "cpu": {
-    "format": " {usage}%",
+    "format": "󰻠 {usage}%",
     "interval": 1,
     "tooltip": false,
   },
   "custom/os": {
-    "format": "󰄛 ",
+    "format": "󰌽 ",
   },
   "cava": {
     "cava_config": "$HOME/.config/cava/config",
