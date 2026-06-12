@@ -8,19 +8,69 @@
 .modules-left,
 .modules-center,
 .modules-right {
+  border: transparent;
   border-radius: 100px;
   padding-left: 15px;
   padding-right: 15px;
-  background-color: rgb(48, 52, 70); /* Catppucin Crust */
+  background-color: rgb(48, 52, 70);
   /* padding-top: 50; */
   /* padding-bottom: 50; */
 }
-/* .modules-left {
-  background-color: red;
+.modules-left * {
+  color: rgb(140, 170, 238);
 }
-.modules-center {
-  background-color: blue;
+.modules-center * {
+  color: rgb(129, 200, 190);
 }
-.modules-right {
-  background-color: green;
-} */
+.modules-right * {
+  color: rgb(202, 158, 230);
+}
+
+#backlight-slider slider {
+  min-height: 0px;
+  min-width: 0px;
+  opacity: 0;
+  background-image: none;
+  border: none;
+  box-shadow: none;
+  background: none;
+}
+#backlight-slider trough {
+  border: none;
+  min-height: 5px;
+  min-width: 50px;
+  border-radius: 10px;
+  background: rgb(35, 38, 52);
+}
+#backlight-slider highlight {
+  border: none;
+  min-width: 5px;
+  border-radius: 10px;
+  background: rgb(202, 158, 230);
+}
+#pulseaudio-slider {
+  padding: 0;
+  margin: 0;
+}
+#pulseaudio-slider slider {
+  min-height: 0px;
+  min-width: 0px;
+  opacity: 0;
+  background-image: none;
+  border: none;
+  box-shadow: none;
+  background: none;
+}
+#pulseaudio-slider trough {
+  border: none;
+  min-height: 5px;
+  min-width: 50px;
+  border-radius: 10px;
+  background: rgb(35, 38, 52);
+}
+#pulseaudio-slider highlight {
+  border: none;
+  min-width: 5px;
+  border-radius: 10px;
+  background: rgb(202, 158, 230);
+}
