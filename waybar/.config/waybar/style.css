@@ -1,0 +1,26 @@
+#waybar {
+  background-color: transparent;
+  font-family: MonoLisa, monospace;
+  font-size: 14px;
+  font-weight: 400;
+}
+
+.modules-left,
+.modules-center,
+.modules-right {
+  border-radius: 100px;
+  padding-left: 15px;
+  padding-right: 15px;
+  background-color: rgb(48, 52, 70); /* Catppucin Crust */
+  /* padding-top: 50; */
+  /* padding-bottom: 50; */
+}
+/* .modules-left {
+  background-color: red;
+}
+.modules-center {
+  background-color: blue;
+}
+.modules-right {
+  background-color: green;
+} */

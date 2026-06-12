@@ -1,0 +1,91 @@
+{
+  "layer": "top",
+  "position": "top",
+  // "height": 35,
+  "margin-top": 10,
+  "margin-left": 10,
+  "margin-right": 10,
+  "spacing": 20,
+  "name": "waybar",
+  "start_hidden": false,
+  "fixed-center": false,
+  "passthrough": true,
+  "reload_style_on_change": true,
+  "modules-left": ["custom/os", "user", "hyprland/workspaces", "cava"],
+  "modules-center": ["hyprland/window"],
+  "modules-right": [
+    "temperature",
+    "backlight",
+    "backlight/slider",
+    "pulseaudio",
+    "pulseaudio/slider",
+    "network",
+    "memory",
+    "bluetooth",
+    "cpu",
+    "disk",
+    "battery",
+    "clock",
+  ],
+  "hyprland/window": {
+    // "max-length": 50,
+  },
+  "user": {
+    "format": "󰄛 {user}",
+  },
+  "temperature": {
+    "format": "󰔏 {temperatureC}°C",
+  },
+  "memory": {
+    "interval": 1,
+    "format": "󰘚 {percentage}%",
+  },
+  "backlight/slider": {
+    "min": 10,
+    "max": 100,
+    "orientation": "horizontal",
+    "device": "intel_backlight",
+  },
+  "backlight": {
+    "device": "intel_backlight",
+    "format": "󰍹 {percent}%",
+  },
+  "pulseaudio/slider": {},
+  "pulseaudio": { "format": "󰕾 {volume}%" },
+  "bluetooth": {
+    "format": " {status}",
+  },
+  "battery": {
+    "format": " {capacity}%",
+  },
+  "disk": {
+    "interval": 60,
+    "format": "󰋊 {percentage_used}%",
+    "path": "/",
+  },
+  "network": {
+    "interface": "wlp2s0",
+    "format": "{ifname}",
+    "format-wifi": "󰖩 {essid}",
+    "format-ethernet": "󰈀 {ipaddr}/{cidr}",
+  },
+  "clock": {
+    "format": "{:%a, %d. %B %Y %H:%M:%S}",
+    "interval": 1,
+  },
+  "cpu": {
+    "format": " {usage}%",
+    "interval": 1,
+  },
+  "custom/os": {
+    "format": "󰕈 ",
+  },
+  "cava": {
+    "cava_config": "$HOME/.config/cava/config",
+    "input_delay": 4,
+    "format-icons": ["▁", "▂", "▃", "▄", "▅", "▆", "▇", "█"],
+    "actions": {
+      "on-click-right": "mode",
+    },
+  },
+}
