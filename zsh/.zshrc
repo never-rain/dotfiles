@@ -40,9 +40,8 @@ alias vi="nvim"
 alias vim="nvim"
 alias t="tree -a"
 alias y="yazi"
+alias cod="codex"
 alias m="unimatrix --flashers --asynchronous --speed 97"
-alias mail="aerc"
-alias clearavante="rm -rf ~/.local/share/nvim/avante/ ~/.local/state/nvim/avante/"
 alias lg="lazygit"
 alias cat="bat"
 
@@ -51,3 +50,4 @@ autoload -Uz compinit
 compinit
 
 eval "$(starship init zsh)"
+export PATH="$HOME/.platformio/penv/bin:$PATH"
