@@ -1,9 +1,0 @@
-[Unit]
-Description=Set a random wallpaper with Hyprpaper
-
-[Service]
-ExecStart=/home/darkstar/.config/randomwall/randomwall.sh
-Type=oneshot
-
-[Install]
-WantedBy=default.target
