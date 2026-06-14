@@ -71,7 +71,7 @@
   },
   "hyprland/window": {
     "format": "{title}",
-    "icon": true,
+    "icon": false,
     "icon-size": 16,
   },
   "temperature": {

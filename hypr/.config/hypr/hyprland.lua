@@ -7,7 +7,6 @@ local colors = {
 
 local terminal = "ghostty"
 local fileManager = "nautilus"
-local launcher = "hyprlauncher"
 local google = "~/.local/bin/google"
 local mainMod = "SUPER"
 
@@ -22,6 +21,7 @@ hl.on("hyprland.start", function()
   hl.exec_cmd("hypridle")
   hl.exec_cmd("waybar")
   hl.exec_cmd("hyprpaper")
+  hl.exec_cmd("vicinae server")
 end)
 
 hl.env("XCURSOR_SIZE", "24")
@@ -96,6 +96,13 @@ hl.config({
   },
 })
 
+hl.layer_rule({
+    match = { namespace = "vicinae" },
+    name = "vicinae-blur",
+    blur = true,
+  ignore_alpha = 0,
+})
+
 hl.curve("easeOutQuint", { type = "bezier", points = { { 0.23, 1 }, { 0.32, 1 } } })
 hl.curve("easeInOutCubic", { type = "bezier", points = { { 0.65, 0.05 }, { 0.36, 1 } } })
 hl.curve("linear", { type = "bezier", points = { { 0, 0 }, { 1, 1 } } })
@@ -126,10 +133,10 @@ hl.device({
 
 hl.bind(mainMod .. " + N", hl.dsp.exec_cmd(terminal))
 hl.bind(mainMod .. " + Q", hl.dsp.window.close())
-hl.bind(mainMod .. " + M", hl.dsp.exec_cmd("command -v hyprshutdown >/dev/null 2>&1 && hyprshutdown || hyprctl dispatch 'hl.dsp.exit()'"))
+hl.bind(mainMod .. " + M", hl.dsp.exec_cmd("loginctl terminate-session $XDG_SESSION_ID"))
 hl.bind(mainMod .. " + F", hl.dsp.exec_cmd(fileManager))
 hl.bind(mainMod .. " + V", hl.dsp.window.float({ action = "toggle" }))
-hl.bind(mainMod .. " + SPACE", hl.dsp.exec_cmd(launcher))
+hl.bind(mainMod .. " + Space", hl.dsp.exec_cmd("vicinae toggle"))
 hl.bind(mainMod .. " + G", hl.dsp.exec_cmd(google))
 hl.bind(mainMod .. " + P", hl.dsp.window.pseudo())
 hl.bind(mainMod .. " + J", hl.dsp.layout("togglesplit"))
