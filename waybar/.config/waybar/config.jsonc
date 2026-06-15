@@ -75,6 +75,7 @@
     "icon-size": 16,
   },
   "temperature": {
+    "interval": 1,
     "format": "󰔏 {temperatureC}°C",
     "tooltip": false,
   },
@@ -114,17 +115,19 @@
     },
   },
   "disk": {
-    "interval": 60,
+    "interval": 1,
     "format": "󰋊 {percentage_used}%",
     "path": "/",
     "tooltip": false,
   },
   "network": {
     "interface": "wlp2s0",
-    "format": "{ifname}",
+    "format": "󰲝 Network ({ifname})",
     "format-wifi": "󰖩 {essid}",
     "format-ethernet": "󰈀 {ipaddr}/{cidr}",
-    "format-disconnectes": "",
+    "format-disconnected": "󰖪 ",
+    "on-click": "$HOME/.config/waybar/scripts/wifi-menu.sh",
+    "on-click-right": "nm-connection-editor",
     "tooltip": false,
   },
   "clock": {
@@ -138,11 +141,11 @@
     "tooltip": false,
   },
   "cava": {
-    "cava_config": "$HOME/.config/cava/config",
-    "input_delay": 4,
-    "format-icons": ["▁", "▂", "▃", "▄", "▅", "▆", "▇", "█"],
-    "actions": {
-      "on-click-right": "mode",
-    },
+    "cava_config": "$HOME/.config/waybar/waybar-cava",
+    "sleep_timer": 1,
+    "hide_on_silence": false,
+    "format_silent": "󱑽 Silence",
+    // "format-icons": [" ", "▁", "▂", "▃", "▄", "▅", "▆", "▇", "█"],
+    "format-icons": [" ", "▖", "▗", "▘", "▙", "▚", "▛", "▜", "▝", "▞", "▟"],
   },
 }

@@ -1,0 +1,22 @@
+[general]
+framerate = 60
+autosens = 0
+sensitivity = 75
+bars = 24
+bar_spacing = 1
+bar_width = 0
+sleep_timer = 0
+method = pulse
+source = auto
+
+[output]
+method = noncurses
+channels = stereo
+raw_target = /dev/stdout
+bar_delimiter = 0
+show_idle_bar_heads = 0
+
+[smoothing]
+monstercat = 0
+waves = 0
+noise_reduction = 77
