@@ -142,10 +142,19 @@ hl.bind(mainMod .. " + J", hl.dsp.layout("togglesplit"))
 hl.bind(mainMod .. " + L", hl.dsp.exec_cmd("hyprlock"))
 hl.bind(mainMod .. " + SHIFT + F", hl.dsp.window.fullscreen({ mode = "fullscreen", action = "toggle" }))
 
+local resizeStep = 25
+
+hl.bind(mainMod .. " + SHIFT + right", hl.dsp.window.resize({ x = resizeStep, y = 0, relative = true }), { repeating = true })
+hl.bind(mainMod .. " + SHIFT + left", hl.dsp.window.resize({ x = -resizeStep, y = 0, relative = true }), { repeating = true })
+hl.bind(mainMod .. " + SHIFT + up", hl.dsp.window.resize({ x = 0, y = resizeStep, relative = true }), { repeating = true })
+hl.bind(mainMod .. " + SHIFT + down", hl.dsp.window.resize({ x = 0, y = -resizeStep, relative = true }), { repeating = true })
+
 hl.bind(mainMod .. " + left", hl.dsp.focus({ direction = "l" }))
 hl.bind(mainMod .. " + right", hl.dsp.focus({ direction = "r" }))
 hl.bind(mainMod .. " + up", hl.dsp.focus({ direction = "u" }))
 hl.bind(mainMod .. " + down", hl.dsp.focus({ direction = "d" }))
+
+hl.bind(mainMod .. " + mouse:272", hl.dsp.window.drag(), { mouse = true })
 
 for i = 1, 10 do
   local key = i % 10

@@ -75,12 +75,12 @@
     "icon-size": 16,
   },
   "temperature": {
-    "interval": 60,
+    "interval": 1,
     "format": "󰔏 {temperatureC}°C",
     "tooltip": false,
   },
   "memory": {
-    "interval": 60,
+    "interval": 1,
     "format": "󰍛 {percentage}%",
     "tooltip": false,
   },
@@ -115,7 +115,7 @@
     },
   },
   "disk": {
-    "interval": 60,
+    "interval": 1,
     "format": "󰋊 {percentage_used}%",
     "path": "/",
     "tooltip": false,
