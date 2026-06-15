@@ -139,10 +139,8 @@
   },
   "cava": {
     "cava_config": "$HOME/.config/cava/config",
+    "max-length": 20,
     "input_delay": 4,
     "format-icons": ["▁", "▂", "▃", "▄", "▅", "▆", "▇", "█"],
-    "actions": {
-      "on-click-right": "mode",
-    },
   },
 }
