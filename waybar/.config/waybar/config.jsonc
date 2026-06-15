@@ -139,8 +139,12 @@
   },
   "cava": {
     "cava_config": "$HOME/.config/cava/config",
-    "max-length": 20,
-    "input_delay": 4,
+    "framerate": 60,
+    "sleep_timer": 5,
+    "hide_on_silence": false,
+    "format_silent": "Silence",
+    "stereo": true,
+    "bars": 24,
     "format-icons": ["▁", "▂", "▃", "▄", "▅", "▆", "▇", "█"],
   },
 }

@@ -32,6 +32,9 @@
     border-color: transparent;
   }
 }
+.modules-center {
+  margin: 0 20px;
+}
 .modules-left * {
   color: rgb(140, 170, 238);
 }
