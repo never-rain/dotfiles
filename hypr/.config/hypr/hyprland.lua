@@ -133,7 +133,7 @@ hl.device({
 
 hl.bind(mainMod .. " + N", hl.dsp.exec_cmd(terminal))
 hl.bind(mainMod .. " + Q", hl.dsp.window.close())
-hl.bind(mainMod .. " + M", hl.dsp.exec_cmd("loginctl terminate-session $XDG_SESSION_ID"))
+hl.bind(mainMod .. " + M", hl.dsp.exec_cmd("hyprshutdown -t 'Logging out...'"))
 hl.bind(mainMod .. " + F", hl.dsp.exec_cmd(fileManager))
 hl.bind(mainMod .. " + V", hl.dsp.window.float({ action = "toggle" }))
 hl.bind(mainMod .. " + Space", hl.dsp.exec_cmd("vicinae toggle"))

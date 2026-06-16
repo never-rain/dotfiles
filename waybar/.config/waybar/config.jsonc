@@ -41,7 +41,7 @@
   },
   "custom/shutdown": {
     "format": "󰐥 ",
-    "on-click": "shutdown now",
+    "on-click": "hyprshutdown -t 'Shutting down...' --post-cmd 'systemctl poweroff'",
     "tooltip": false,
   },
   "custom/lock": {
@@ -51,12 +51,12 @@
   },
   "custom/logout": {
     "format": "󰍃 ",
-    "on-click": "loginctl terminate-session $XDG_SESSION_ID",
+    "on-click": "hyprshutdown -t 'Logging out...'",
     "tooltip": false,
   },
   "custom/reboot": {
     "format": "󰑙 ",
-    "on-click": "reboot",
+    "on-click": "hyprshutdown -t 'Rebooting...' --post-cmd 'systemctl reboot'",
     "tooltip": false,
   },
   "group/hardware": {
@@ -91,7 +91,7 @@
   },
   "backlight": {
     "device": "intel_backlight",
-    "format": "󱩒 {percent}%",
+    "format": "󰍹 {percent}%",
     "tooltip": false,
   },
   "pulseaudio/slider": {

@@ -21,5 +21,11 @@
       "dark": {
          "name": "catppuccin-frappe"
       }
-   }
+   },
+   "favorites": [
+      "applications:com.mitchellh.ghostty",
+      "applications:proton-mail_proton-mail",
+      "applications:code_code",
+      "applications:com.google.Chrome"
+   ]
 }
