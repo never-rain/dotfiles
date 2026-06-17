@@ -107,3 +107,34 @@
 .left-drawer-child * {
   margin-left: 20px;
 }
+
+#network {
+  background-color: brown;
+}
+#bluetooth {
+  background-color: aqua;
+}
+#battery {
+  background-color: blue;
+}
+#hardware {
+  background-color: yellow;
+}
+#clock {
+  background-color: crimson;
+}
+#power {
+  background-color: violet;
+}
+#display {
+  background-color: cornflowerblue;
+}
+#volume {
+  background-color: violet;
+}
+#cava {
+  background-color: coral;
+}
+#workspaces {
+  background-color: darkgreen;
+}

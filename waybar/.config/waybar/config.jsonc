@@ -14,10 +14,8 @@
   "modules-left": ["group/power", "hyprland/workspaces", "cava"],
   "modules-center": ["hyprland/window"],
   "modules-right": [
-    "backlight",
-    "backlight/slider",
-    "pulseaudio",
-    "pulseaudio/slider",
+    "group/display",
+    "group/volume",
     "network",
     "bluetooth",
     "battery",
@@ -38,6 +36,14 @@
       "custom/reboot",
       "custom/logout",
     ],
+  },
+  "group/display": {
+    "orientation": "inherit",
+    "modules": ["backlight", "backlight/slider"],
+  },
+  "group/volume": {
+    "orientation": "inherit",
+    "modules": ["pulseaudio", "pulseaudio/slider"],
   },
   "custom/shutdown": {
     "format": "󰐥 ",
@@ -75,12 +81,14 @@
     "icon-size": 16,
   },
   "temperature": {
-    "interval": 1,
+    "hwmon-path-abs": "/sys/devices/pci0000:00/0000:00:18.3/hwmon",
+    "input-filename": "temp1_input",
+    "interval": 10,
     "format": "󰔏 {temperatureC}°C",
     "tooltip": false,
   },
   "memory": {
-    "interval": 1,
+    "interval": 10,
     "format": "󰍛 {percentage}%",
     "tooltip": false,
   },
@@ -105,7 +113,7 @@
     "tooltip": false,
   },
   "battery": {
-    "interval": 60,
+    "interval": 10,
     "format": "{icon} {capacity}%",
     "tooltip": false,
     "format-icons": ["󰁺", "󰁻", "󰁼", "󰁽", "󰁾", "󰁿", "󰂀", "󰂁", "󰂂", "󰁹"],
@@ -115,7 +123,7 @@
     },
   },
   "disk": {
-    "interval": 1,
+    "interval": 10,
     "format": "󰋊 {percentage_used}%",
     "path": "/",
     "tooltip": false,
@@ -137,7 +145,7 @@
   },
   "cpu": {
     "format": "󰻠 {usage}%",
-    "interval": 1,
+    "interval": 10,
     "tooltip": false,
   },
   "cava": {
