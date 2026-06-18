@@ -1,11 +1,10 @@
 {
   "layer": "top",
   "position": "top",
-  // "height": 35,
   "margin-top": 10,
   "margin-left": 10,
   "margin-right": 10,
-  "spacing": 20,
+  "spacing": 0,
   "name": "waybar",
   "start_hidden": false,
   "fixed-center": false,
@@ -46,22 +45,22 @@
     "modules": ["pulseaudio", "pulseaudio/slider"],
   },
   "custom/shutdown": {
-    "format": "󰐥 ",
+    "format": " 󰐥 ",
     "on-click": "hyprshutdown -t 'Shutting down...' --post-cmd 'systemctl poweroff'",
     "tooltip": false,
   },
   "custom/lock": {
-    "format": "󰌾 ",
+    "format": " 󰌾 ",
     "on-click": "hyprlock",
     "tooltip": false,
   },
   "custom/logout": {
-    "format": "󰍃 ",
+    "format": " 󰍃 ",
     "on-click": "hyprshutdown -t 'Logging out...'",
     "tooltip": false,
   },
   "custom/reboot": {
-    "format": "󰑙 ",
+    "format": " 󰑙 ",
     "on-click": "hyprshutdown -t 'Rebooting...' --post-cmd 'systemctl reboot'",
     "tooltip": false,
   },
@@ -99,7 +98,7 @@
   },
   "backlight": {
     "device": "intel_backlight",
-    "format": "󰍹 {percent}%",
+    "format": "󰍹 {percent}% ",
     "tooltip": false,
   },
   "pulseaudio/slider": {
@@ -107,7 +106,7 @@
     "max": 100,
     "orientation": "horizontal",
   },
-  "pulseaudio": { "format": "󰕾 {volume}%", "tooltip": false },
+  "pulseaudio": { "format": "󰕾 {volume}% ", "tooltip": false },
   "bluetooth": {
     "format": "󰂯 {status}",
     "tooltip": false,
