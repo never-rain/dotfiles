@@ -1,6 +1,6 @@
 #waybar {
   background-color: #232634;
-  border: 2px solid #51576d;
+  border: 2px solid #414559;
   border-radius: 10px;
   font-family: MonoLisa, monospace;
   font-size: 14px;
@@ -47,9 +47,9 @@
 #cava,
 #workspaces {
   padding: 3px 15px;
-  border: 1px solid #51576d;
-  border-bottom: 2px solid #51576d;
-  border-top: 2px solid #51576d;
+  border: 1px solid #414559;
+  border-bottom: 2px solid #414559;
+  border-top: 2px solid #414559;
 }
 
 #network,
@@ -87,39 +87,39 @@
   padding: 5px 15px;
   background-color: transparent;
   border: none;
-  color: #eebebe;
+  color: #a5adce;
 }
 
 #network {
-  color: #ca9ee6;
+  color: #81c8be;
 }
 
 #bluetooth {
-  color: #e78284;
+  color: #a6d189;
 }
 
 #battery {
-  color: #babbf1;
+  color: #ef9f76;
 }
 
 #hardware {
-  color: #e5c890;
+  color: #e78284;
 }
 
 #clock {
   border-top-right-radius: 10px;
   border-bottom-right-radius: 10px;
-  color: #a6d189;
+  color: #ca9ee6;
 }
 
 #power {
   border-top-left-radius: 10px;
   border-bottom-left-radius: 10px;
-  color: #8caaee;
+  color: #a6d189;
 }
 
 #display {
-  color: #81c8be;
+  color: #ca9ee6;
 }
 
 #volume {
@@ -127,16 +127,25 @@
 }
 
 #cava {
-  color: #e78284;
+  color: #8caaee;
 }
 
 #workspaces {
-  color: #81c8be;
+  color: #ca9ee6;
 }
 
 #workspaces button {
   border: none;
-  color: #81c8be;
+  padding: 0 5px;
+  color: #737994;
+}
+#workspaces button.active {
+  color: #e78284;
+  background-color: #414559;
+}
+
+#workspaces button:hover {
+  color: #c6d0f5;
 }
 
 /* Module states */
@@ -183,7 +192,7 @@
 }
 
 #backlight-slider highlight {
-  background: #81c8be;
+  background: #ca9ee6;
 }
 
 #pulseaudio-slider highlight {

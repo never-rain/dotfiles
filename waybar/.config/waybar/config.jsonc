@@ -110,7 +110,8 @@
   "bluetooth": {
     "on-click": "$HOME/.config/waybar/scripts/bluetooth-menu.sh",
     "on-click-right": "$HOME/.config/waybar/scripts/bluetooth-menu.sh off",
-    "format": "󰂯 {status}",
+    "format": "󰂯",
+    "format-off": "󰂲",
     "tooltip": false,
   },
   "battery": {
