@@ -108,6 +108,8 @@
   },
   "pulseaudio": { "format": "󰕾 {volume}% ", "tooltip": false },
   "bluetooth": {
+    "on-click": "$HOME/.config/waybar/scripts/bluetooth-menu.sh",
+    "on-click-right": "$HOME/.config/waybar/scripts/bluetooth-menu.sh off",
     "format": "󰂯 {status}",
     "tooltip": false,
   },
@@ -134,7 +136,7 @@
     "format-ethernet": "󰈀 {ipaddr}/{cidr}",
     "format-disconnected": "󰖪 ",
     "on-click": "$HOME/.config/waybar/scripts/wifi-menu.sh",
-    "on-click-right": "nm-connection-editor",
+    "on-click-right": "$HOME/.config/waybar/scripts/wifi-menu.sh off",
     "tooltip": false,
   },
   "clock": {
