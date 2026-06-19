@@ -4,6 +4,8 @@ local hl = hl
 local colors = {
   base = "#303446",
   crust = "#232634",
+  blue = "#babbf1",
+  red = "#e78284",
 }
 
 local terminal = "ghostty"
@@ -26,7 +28,6 @@ end)
 
 hl.env("XCURSOR_SIZE", "24")
 hl.env("HYPRCURSOR_SIZE", "24")
-hl.env("HYPRSHOT_DIR", "/home/darkstar/Downloads")
 
 hl.config({
   general = {
@@ -35,10 +36,10 @@ hl.config({
     border_size = 2,
     col = {
       active_border = {
-        colors = { "rgb(0,183,235)", "rgb(255,0,127)" },
+        colors = { colors.blue, colors.red },
         angle = 45,
       },
-      inactive_border = colors.base,
+      inactive_border = colors.crust,
     },
     resize_on_border = true,
     extend_border_grab_area = true,
@@ -47,7 +48,7 @@ hl.config({
   },
   decoration = {
     rounding = 10,
-    rounding_power = 2.0,
+    rounding_power = 2,
     active_opacity = 0.9,
     inactive_opacity = 0.75,
     shadow = {
@@ -71,6 +72,7 @@ hl.config({
   },
   master = {
     new_status = "master",
+    mfact = 0.5,
   },
   misc = {
     force_default_wallpaper = 0,
@@ -97,9 +99,9 @@ hl.config({
 })
 
 hl.layer_rule({
-    match = { namespace = "vicinae" },
-    name = "vicinae-blur",
-    blur = true,
+  match = { namespace = "vicinae" },
+  name = "vicinae-blur",
+  blur = true,
   ignore_alpha = 0,
 })
 
@@ -144,10 +146,14 @@ hl.bind(mainMod .. " + SHIFT + F", hl.dsp.window.fullscreen({ mode = "fullscreen
 
 local resizeStep = 25
 
-hl.bind(mainMod .. " + SHIFT + right", hl.dsp.window.resize({ x = resizeStep, y = 0, relative = true }), { repeating = true })
-hl.bind(mainMod .. " + SHIFT + left", hl.dsp.window.resize({ x = -resizeStep, y = 0, relative = true }), { repeating = true })
-hl.bind(mainMod .. " + SHIFT + up", hl.dsp.window.resize({ x = 0, y = resizeStep, relative = true }), { repeating = true })
-hl.bind(mainMod .. " + SHIFT + down", hl.dsp.window.resize({ x = 0, y = -resizeStep, relative = true }), { repeating = true })
+hl.bind(mainMod .. " + SHIFT + right", hl.dsp.window.resize({ x = resizeStep, y = 0, relative = true }),
+  { repeating = true })
+hl.bind(mainMod .. " + SHIFT + left", hl.dsp.window.resize({ x = -resizeStep, y = 0, relative = true }),
+  { repeating = true })
+hl.bind(mainMod .. " + SHIFT + up", hl.dsp.window.resize({ x = 0, y = resizeStep, relative = true }),
+  { repeating = true })
+hl.bind(mainMod .. " + SHIFT + down", hl.dsp.window.resize({ x = 0, y = -resizeStep, relative = true }),
+  { repeating = true })
 
 hl.bind(mainMod .. " + left", hl.dsp.focus({ direction = "l" }))
 hl.bind(mainMod .. " + right", hl.dsp.focus({ direction = "r" }))
@@ -162,9 +168,13 @@ for i = 1, 10 do
   hl.bind(mainMod .. " + SHIFT + " .. key, hl.dsp.window.move({ workspace = i }))
 end
 
-hl.bind("XF86AudioRaiseVolume", hl.dsp.exec_cmd("wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%+"), { locked = true, repeating = true })
-hl.bind("XF86AudioLowerVolume", hl.dsp.exec_cmd("wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-"), { locked = true, repeating = true })
-hl.bind("XF86AudioMute", hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"), { locked = true, repeating = true })
-hl.bind("XF86AudioMicMute", hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle"), { locked = true, repeating = true })
+hl.bind("XF86AudioRaiseVolume", hl.dsp.exec_cmd("wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%+"),
+  { locked = true, repeating = true })
+hl.bind("XF86AudioLowerVolume", hl.dsp.exec_cmd("wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-"),
+  { locked = true, repeating = true })
+hl.bind("XF86AudioMute", hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"),
+  { locked = true, repeating = true })
+hl.bind("XF86AudioMicMute", hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle"),
+  { locked = true, repeating = true })
 hl.bind("XF86MonBrightnessUp", hl.dsp.exec_cmd("brightnessctl s 5%+"), { locked = true, repeating = true })
 hl.bind("XF86MonBrightnessDown", hl.dsp.exec_cmd("brightnessctl s 5%-"), { locked = true, repeating = true })

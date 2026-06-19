@@ -23,6 +23,7 @@
       }
    },
    "favorites": [
+      "applications:telegram-desktop_telegram-desktop",
       "applications:com.mitchellh.ghostty",
       "applications:proton-mail_proton-mail",
       "applications:code_code",
