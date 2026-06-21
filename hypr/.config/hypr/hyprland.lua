@@ -61,7 +61,7 @@ hl.config({
       enabled = true,
       size = 2,
       passes = 4,
-      vibrancy = 0.1696,
+      vibrancy = 1.618,
     },
   },
   animations = {
@@ -72,7 +72,7 @@ hl.config({
   },
   master = {
     new_status = "master",
-    mfact = 0.5,
+    mfact = (math.sqrt(5) - 1) / 2,
   },
   misc = {
     force_default_wallpaper = 0,
@@ -135,7 +135,15 @@ hl.device({
 
 hl.bind(mainMod .. " + N", hl.dsp.exec_cmd(terminal))
 hl.bind(mainMod .. " + Q", hl.dsp.window.close())
-hl.bind(mainMod .. " + M", hl.dsp.exec_cmd("hyprshutdown -t 'Logging out...'"))
+local currentLayout = "dwindle"
+hl.bind(mainMod .. " + M", function()
+  currentLayout = currentLayout == "dwindle" and "master" or "dwindle"
+  hl.config({ general = { layout = currentLayout } })
+  hl.exec_cmd(string.format(
+    "notify-send --app-name=Hyprland 'Layout gewechselt' '%s'",
+    currentLayout == "master" and "Master" or "Dwindle"
+  ))
+end)
 hl.bind(mainMod .. " + F", hl.dsp.exec_cmd(fileManager))
 hl.bind(mainMod .. " + V", hl.dsp.window.float({ action = "toggle" }))
 hl.bind(mainMod .. " + Space", hl.dsp.exec_cmd("vicinae toggle"))
