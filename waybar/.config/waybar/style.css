@@ -42,8 +42,8 @@
 #hardware,
 #clock,
 #power,
-#display,
-#volume,
+#backlight,
+#wireplumber,
 #cava,
 #workspaces {
   padding: 3px 15px;
@@ -56,15 +56,14 @@
 #battery,
 #clock,
 #power,
-#display,
 #cava {
   background-color: transparent;
 }
 
 #bluetooth,
 #hardware,
-#volume,
-#workspaces {
+#workspaces,
+#wireplumber {
   background-color: #303446;
 }
 
@@ -72,8 +71,8 @@
 #bluetooth,
 #battery,
 #hardware,
-#display,
-#volume {
+#wireplumber,
+#backlight {
   border-right: none;
 }
 
@@ -118,11 +117,11 @@
   color: #a6d189;
 }
 
-#display {
+#backlight {
   color: #ca9ee6;
 }
 
-#volume {
+#wireplumber {
   color: #8caaee;
 }
 
@@ -155,46 +154,4 @@
 
 #battery.critical {
   color: red;
-}
-
-/* Sliders */
-#pulseaudio-slider {
-  margin: 0;
-  padding: 0;
-}
-
-#backlight-slider slider,
-#pulseaudio-slider slider {
-  min-height: 0px;
-  min-width: 0px;
-  opacity: 0;
-  background-image: none;
-  background: none;
-  border: none;
-  box-shadow: none;
-}
-
-#backlight-slider trough,
-#pulseaudio-slider trough {
-  min-height: 5px;
-  min-width: 50px;
-  background: #414559;
-  border: none;
-  border-radius: 10px;
-}
-
-#backlight-slider highlight,
-#pulseaudio-slider highlight {
-  min-width: 5px;
-  margin: 0px;
-  border: none;
-  border-radius: 10px;
-}
-
-#backlight-slider highlight {
-  background: #ca9ee6;
-}
-
-#pulseaudio-slider highlight {
-  background: #8caaee;
 }

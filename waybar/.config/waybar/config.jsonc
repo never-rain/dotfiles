@@ -13,8 +13,8 @@
   "modules-left": ["group/power", "hyprland/workspaces", "cava"],
   "modules-center": ["hyprland/window"],
   "modules-right": [
-    "group/display",
-    "group/volume",
+    "backlight",
+    "wireplumber",
     "network",
     "bluetooth",
     "battery",
@@ -36,13 +36,11 @@
       "custom/logout",
     ],
   },
-  "group/display": {
-    "orientation": "inherit",
-    "modules": ["backlight", "backlight/slider"],
-  },
-  "group/volume": {
-    "orientation": "inherit",
-    "modules": ["pulseaudio", "pulseaudio/slider"],
+  "wireplumber": {
+    "format": "󰕾 {volume}%",
+    "tooltip": false,
+    "on-scroll-up": "wpctl set-volume -l 1 @DEFAULT_AUDIO_SINK@ 5%+",
+    "on-scroll-down": "wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-",
   },
   "custom/shutdown": {
     "format": " 󰐥 ",
@@ -91,22 +89,11 @@
     "format": "󰍛 {percentage}%",
     "tooltip": false,
   },
-  "backlight/slider": {
-    "min": 10,
-    "max": 100,
-    "orientation": "horizontal",
-  },
   "backlight": {
     "device": "intel_backlight",
-    "format": "󰍹 {percent}% ",
+    "format": "󰍹 {percent}%",
     "tooltip": false,
   },
-  "pulseaudio/slider": {
-    "min": 0,
-    "max": 100,
-    "orientation": "horizontal",
-  },
-  "pulseaudio": { "format": "󰕾 {volume}% ", "tooltip": false },
   "bluetooth": {
     "on-click": "$HOME/.config/waybar/scripts/bluetooth-menu.sh",
     "on-click-right": "$HOME/.config/waybar/scripts/bluetooth-menu.sh off",
