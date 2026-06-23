@@ -72,6 +72,7 @@ hl.config({
   },
   master = {
     new_status = "master",
+    new_on_top = true,
     mfact = (math.sqrt(5) - 1) / 2,
   },
   misc = {
