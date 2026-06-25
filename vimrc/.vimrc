@@ -64,3 +64,9 @@ let g:airline#extensions#whitespace#enabled = 1
 
 let g:airline_theme = 'catppuccin_frappe'
 let g:airline_powerline_fonts = 1
+
+augroup prettier_format
+  autocmd!
+  autocmd BufWritePre *.js,*ts
+        \ silent! %!prettier --stdin-filepath %
+augroup END

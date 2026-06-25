@@ -50,3 +50,5 @@ compinit
 
 eval "$(starship init zsh)"
 export PATH="$HOME/.platformio/penv/bin:$PATH"
+export PNPM_HOME="$HOME/.local/share/pnpm"
+export PATH="$PNPM_HOME/bin:$PATH"
