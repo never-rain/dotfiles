@@ -1,5 +1,5 @@
 foreground                  = #ffffff
-font-family                 = MonoLisa
+font-family                 = MonoLisaCode
 font-size                   = 12
 bold-is-bright              = true
 font-feature                = liga on, calt on

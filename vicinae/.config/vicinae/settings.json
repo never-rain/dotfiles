@@ -9,17 +9,24 @@
 // Learn more about configuration at https://docs.vicinae.com/config
 
 {
-   "$schema": "https://vicinae.com/schemas/config.json",
-   "close_on_focus_loss": true,
-   "font": {
-      "normal": {
-         "family": "Inter 18pt",
-         "size": 12
-      }
-   },
-   "theme": {
-      "dark": {
-         "name": "catppuccin-frappe"
-      }
-   }
+  "$schema": "https://vicinae.com/schemas/config.json",
+  "close_on_focus_loss": true,
+  "font": {
+    "normal": {
+      "family": "Inter 18pt",
+      "size": 12
+    }
+  },
+  "theme": {
+    "dark": {
+      "name": "catppuccin-frappe"
+    }
+  },
+  "favorites": [
+    "applications:com.google.Chrome",
+    "applications:com.mitchellh.ghostty",
+    "applications:code_code",
+    "applications:proton-mail_proton-mail",
+    "applications:telegram-desktop_telegram-desktop"
+  ]
 }

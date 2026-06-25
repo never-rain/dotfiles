@@ -1,109 +1,157 @@
 #waybar {
-  background-color: transparent;
-  font-family: MonoLisa, monospace;
+  background-color: #232634;
+  border: 2px solid #414559;
+  border-radius: 10px;
+  font-family: "MonoLisa Code", monospace;
   font-size: 14px;
   font-weight: 400;
 }
 
+/* Layout */
 .modules-left,
 .modules-center,
 .modules-right {
-  border: 1px solid transparent;
-  border-radius: 100px;
-  padding-left: 20px;
-  padding-right: 20px;
-  background-color: rgb(48, 52, 70);
-  animation: modules-border-flash 1500ms ease-out 1;
-  /* padding-top: 50; */
-  /* padding-bottom: 50; */
+  padding-left: 0px;
+  padding-right: 0px;
 }
 
-@keyframes modules-border-flash {
-  0% {
-    border-color: transparent;
-  }
-  33% {
-    border-color: rgb(231, 130, 132);
-  }
-  66% {
-    border-color: rgb(140, 170, 238);
-  }
-  100% {
-    border-color: transparent;
-  }
-}
 .modules-center {
-  margin: 0 20px;
-}
-.modules-left * {
-  color: rgb(140, 170, 238);
-}
-.modules-center * {
-  color: rgb(129, 200, 190);
-}
-.modules-right * {
-  color: rgb(202, 158, 230);
+  padding: 0 20px;
 }
 
+.modules-left *,
+.modules-center *,
+.modules-right * {
+  margin: 0px;
+  padding: 0px;
+}
+
+/* Drawers */
+.right-drawer-child * {
+  margin-right: 15px;
+}
+
+.left-drawer-child * {
+  margin-left: 15px;
+}
+
+/* Shared module styles */
+#network,
+#bluetooth,
+#battery,
+#hardware,
+#clock,
+#power,
+#backlight,
+#wireplumber,
+#cava,
+#workspaces {
+  padding: 3px 15px;
+  border: 1px solid #414559;
+  border-bottom: 2px solid #414559;
+  border-top: 2px solid #414559;
+}
+
+#network,
+#battery,
+#clock,
+#power,
+#cava {
+  background-color: transparent;
+}
+
+#bluetooth,
+#hardware,
+#workspaces,
+#wireplumber {
+  background-color: #303446;
+}
+
+#network,
+#bluetooth,
+#battery,
+#hardware,
+#wireplumber,
+#backlight {
+  border-right: none;
+}
+
+#cava,
+#workspaces {
+  border-left: none;
+}
+
+/* Module colors */
+#window {
+  padding: 5px 15px;
+  background-color: transparent;
+  border: none;
+  color: #a5adce;
+}
+
+#network {
+  color: #81c8be;
+}
+
+#bluetooth {
+  color: #a6d189;
+}
+
+#battery {
+  color: #ef9f76;
+}
+
+#hardware {
+  color: #e78284;
+}
+
+#clock {
+  border-top-right-radius: 10px;
+  border-bottom-right-radius: 10px;
+  color: #ca9ee6;
+}
+
+#power {
+  border-top-left-radius: 10px;
+  border-bottom-left-radius: 10px;
+  color: #a6d189;
+}
+
+#backlight {
+  color: #ca9ee6;
+}
+
+#wireplumber {
+  color: #8caaee;
+}
+
+#cava {
+  color: #8caaee;
+}
+
+#workspaces {
+  color: #ca9ee6;
+}
+
+#workspaces button {
+  border: none;
+  padding: 0 5px;
+  color: #737994;
+}
+#workspaces button.active {
+  color: #e78284;
+  background-color: #414559;
+}
+
+#workspaces button:hover {
+  color: #c6d0f5;
+}
+
+/* Module states */
 #battery.warning {
   color: orange;
 }
+
 #battery.critical {
   color: red;
-}
-
-#backlight-slider slider {
-  min-height: 0px;
-  min-width: 0px;
-  opacity: 0;
-  background-image: none;
-  border: none;
-  box-shadow: none;
-  background: none;
-}
-#backlight-slider trough {
-  border: none;
-  min-height: 5px;
-  min-width: 50px;
-  border-radius: 10px;
-  background: rgb(35, 38, 52);
-}
-#backlight-slider highlight {
-  border: none;
-  min-width: 5px;
-  border-radius: 10px;
-  background: rgb(202, 158, 230);
-}
-#pulseaudio-slider {
-  padding: 0;
-  margin: 0;
-}
-#pulseaudio-slider slider {
-  min-height: 0px;
-  min-width: 0px;
-  opacity: 0;
-  background-image: none;
-  border: none;
-  box-shadow: none;
-  background: none;
-}
-#pulseaudio-slider trough {
-  border: none;
-  min-height: 5px;
-  min-width: 50px;
-  border-radius: 10px;
-  background: rgb(35, 38, 52);
-}
-#pulseaudio-slider highlight {
-  border: none;
-  min-width: 5px;
-  border-radius: 10px;
-  background: rgb(202, 158, 230);
-}
-
-.right-drawer-child * {
-  margin-right: 20px;
-}
-.left-drawer-child * {
-  margin-left: 20px;
 }
