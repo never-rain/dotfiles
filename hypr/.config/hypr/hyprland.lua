@@ -118,6 +118,7 @@ hl.device({
   sensitivity = -0.5,
 })
 
+hl.bind(mainMod .. " + SHIFT + M", hl.dsp.layout("swapwithmaster master ignoremaster"))
 hl.bind(mainMod .. " + N", hl.dsp.exec_cmd(terminal))
 hl.bind(mainMod .. " + Q", hl.dsp.window.close())
 local currentLayout = "dwindle"
