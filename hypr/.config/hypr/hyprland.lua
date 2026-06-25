@@ -11,6 +11,7 @@ local colors = {
 local terminal = "ghostty"
 local fileManager = "nautilus"
 local mainMod = "SUPER"
+local currentLayout = "master"
 
 hl.monitor({
   output = "eDP-1",
@@ -20,6 +21,7 @@ hl.monitor({
 })
 
 hl.on("hyprland.start", function()
+  hl.config({ general = { layout = currentLayout } })
   hl.exec_cmd("hyprpaper")
   hl.exec_cmd("hypridle")
   hl.exec_cmd("waybar")
@@ -44,7 +46,7 @@ hl.config({
     resize_on_border = true,
     extend_border_grab_area = true,
     allow_tearing = false,
-    layout = "master",
+    layout = currentLayout,
   },
   decoration = {
     rounding = 10,
@@ -121,7 +123,6 @@ hl.device({
 hl.bind(mainMod .. " + SHIFT + M", hl.dsp.layout("swapwithmaster master ignoremaster"))
 hl.bind(mainMod .. " + N", hl.dsp.exec_cmd(terminal))
 hl.bind(mainMod .. " + Q", hl.dsp.window.close())
-local currentLayout = "dwindle"
 hl.bind(mainMod .. " + M", function()
   currentLayout = currentLayout == "dwindle" and "master" or "dwindle"
   hl.config({ general = { layout = currentLayout } })

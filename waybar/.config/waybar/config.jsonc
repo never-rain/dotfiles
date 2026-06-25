@@ -24,7 +24,7 @@
   "group/power": {
     "orientation": "inherit",
     "drawer": {
-      "transition-duration": 500,
+      "transition-duration": 250,
       "children-class": "left-drawer-child",
       "transition-left-to-right": true,
       "start-expanded": false,
@@ -39,8 +39,8 @@
   "wireplumber": {
     "format": "󰕾 {volume}%",
     "tooltip": false,
-    "on-scroll-up": "wpctl set-volume -l 1 @DEFAULT_AUDIO_SINK@ 5%+",
-    "on-scroll-down": "wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-",
+    "on-scroll-up": "wpctl set-volume -l 1 @DEFAULT_AUDIO_SINK@ 1%+",
+    "on-scroll-down": "wpctl set-volume @DEFAULT_AUDIO_SINK@ 1%-",
   },
   "custom/shutdown": {
     "format": " 󰐥 ",
@@ -65,7 +65,7 @@
   "group/hardware": {
     "orientation": "inherit",
     "drawer": {
-      "transition-duration": 500,
+      "transition-duration": 250,
       "children-class": "right-drawer-child",
       "transition-left-to-right": false,
       "start-expanded": false,
