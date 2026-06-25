@@ -1,0 +1,63 @@
+{
+  "$schema": "https://github.com/fastfetch-cli/fastfetch/raw/master/doc/json_schema.json",
+  "logo": {
+    "source": "~/.config/avatar/cypher.png",
+    "width": 50,
+    "padding": {
+      "right": 2,
+    },
+    "color": {
+      "1": "#ca9ee6",
+      "2": "#c6d0f5",
+    },
+  },
+  "display": {
+    "separator": " ",
+    "color": {
+      "title": "#c6d0f5",
+      "keys": "#81c8be",
+    },
+    "key": {
+      "type": "both",
+    },
+    "percent": {
+      "type": 9, // 1=number, 2=bar, 3=both, 9=colored number
+      "color": {
+        "green": "#a6d189",
+        "yellow": "#e5c890",
+        "red": "#e78284",
+      },
+    },
+  },
+  "modules": [
+    "title",
+    "separator",
+    "os",
+    "host",
+    "kernel",
+    "uptime",
+    "packages",
+    "shell",
+    "display",
+    "de",
+    "wm",
+    "wmtheme",
+    "theme",
+    "icons",
+    "font",
+    "cursor",
+    "terminal",
+    "terminalfont",
+    "cpu",
+    "gpu",
+    "memory",
+    "swap",
+    "disk",
+    "localip",
+    "battery",
+    "poweradapter",
+    "locale",
+    "break",
+    "colors",
+  ],
+}

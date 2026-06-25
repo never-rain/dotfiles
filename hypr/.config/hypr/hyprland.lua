@@ -37,31 +37,25 @@ hl.config({
     col = {
       active_border = {
         colors = { colors.blue, colors.red },
-        angle = 45,
+        angle = 90,
       },
       inactive_border = colors.crust,
     },
     resize_on_border = true,
     extend_border_grab_area = true,
     allow_tearing = false,
-    layout = "dwindle",
+    layout = "master",
   },
   decoration = {
     rounding = 10,
     rounding_power = 2,
-    active_opacity = 0.9,
-    inactive_opacity = 0.75,
-    shadow = {
-      enabled = true,
-      range = 4,
-      render_power = 3,
-      color = colors.crust,
-    },
+    active_opacity = 0.85,
+    inactive_opacity = 0.66,
     blur = {
       enabled = true,
+      -- noise = 0.1,
       size = 2,
       passes = 4,
-      vibrancy = 1.618,
     },
   },
   animations = {
