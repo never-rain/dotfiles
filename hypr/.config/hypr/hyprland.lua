@@ -22,8 +22,9 @@ hl.monitor({
 
 hl.on("hyprland.start", function()
   hl.config({ general = { layout = currentLayout } })
-  hl.exec_cmd("hyprpaper")
   hl.exec_cmd("hypridle")
+  hl.exec_cmd("awww-daemon")
+  hl.exec_cmd("awww-random-wallpaper")
   hl.exec_cmd("waybar")
   hl.exec_cmd("vicinae server")
 end)

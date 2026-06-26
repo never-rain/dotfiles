@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+wallpaper_dir="${AWWW_WALLPAPER_DIR:-$HOME/.config/wallpapers}"
+timeout_seconds="${AWWW_TIMEOUT:-180}"
+awww_bin="awww"
+
+pick_wallpaper() {
+  find -L "$wallpaper_dir" -type f \
+    \( -iname '*.png' -o -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.webp' -o -iname '*.gif' \) \
+    -print0 | shuf -z -n 1 | tr -d '\0'
+}
+
+until "$awww_bin" query >/dev/null 2>&1; do
+  sleep 0.2
+done
+
+while true; do
+  wallpaper="$(pick_wallpaper)"
+
+  if [[ -n "$wallpaper" ]]; then
+    "$awww_bin" img "$wallpaper" \
+      --resize crop \
+      --transition-type random \
+      --transition-duration 3 \
+      --transition-fps 60
+  fi
+
+  sleep "$timeout_seconds"
+done
