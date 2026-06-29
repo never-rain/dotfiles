@@ -4,8 +4,8 @@ local hl = hl
 local colors = {
   base = "#303446",
   crust = "#232634",
-  blue = "#babbf1",
-  red = "#e78284",
+  activeBorder = "#ca9ee6",
+  inactiveBorder = "#303446",
 }
 
 local terminal = "ghostty"
@@ -39,10 +39,10 @@ hl.config({
     border_size = 2,
     col = {
       active_border = {
-        colors = { colors.blue, colors.red },
+        colors = { colors.activeBorder, colors.activeBorder },
         angle = 90,
       },
-      inactive_border = colors.crust,
+      inactive_border = colors.inactiveBorder,
     },
     resize_on_border = true,
     extend_border_grab_area = true,
