@@ -1,8 +1,9 @@
 {
   "$schema": "https://github.com/fastfetch-cli/fastfetch/raw/master/doc/json_schema.json",
   "logo": {
-    "source": "~/.config/avatar/cypher.png",
-    "width": 50,
+    //"width": 50,
+    "source": "debian",
+    //"source": "~/.config/avatar/cypher.png",
     "padding": {
       "right": 2,
     },
