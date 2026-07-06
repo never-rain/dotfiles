@@ -18,7 +18,7 @@ call plug#end()
 set termguicolors
 syntax enable
 filetype plugin indent on
-colorscheme catppuccin_frappe
+colorscheme catppuccin_mocha
 set number
 set relativenumber
 set mouse=a

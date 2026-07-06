@@ -1,13 +1,6 @@
 ---@diagnostic disable-next-line: undefined-global
 local hl = hl
-
-local colors = {
-  base = "#303446",
-  crust = "#232634",
-  activeBorder = "#ca9ee6",
-  inactiveBorder = "#303446",
-}
-
+local colors = require("themes.catppuccin-mocha")
 local terminal = "ghostty"
 local fileManager = "nautilus"
 local mainMod = "SUPER"
@@ -39,10 +32,10 @@ hl.config({
     border_size = 2,
     col = {
       active_border = {
-        colors = { colors.activeBorder, colors.activeBorder },
+        colors = { colors.blue, colors.red },
         angle = 90,
       },
-      inactive_border = colors.inactiveBorder,
+      inactive_border = colors.surface0,
     },
     resize_on_border = true,
     extend_border_grab_area = true,

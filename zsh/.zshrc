@@ -43,6 +43,9 @@ alias co="codex"
 alias m="unimatrix --flashers --asynchronous --speed 97"
 alias lg="lazygit"
 alias cat="bat"
+alias e="exit"
+alias w="w3m"
+alias deploy-website="scp -r dist/* seventrees.io:/var/www/seventrees.io"
 
 # Load and initialise completion system
 autoload -Uz compinit

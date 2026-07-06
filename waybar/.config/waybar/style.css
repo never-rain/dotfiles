@@ -1,6 +1,8 @@
+@import "mocha.css";
+
 #waybar {
-  background-color: #232634;
-  border: 2px solid #414559;
+  background-color: @base;
+  border: 2px solid @surface0;
   border-radius: 10px;
   font-family: "MonoLisa Code", monospace;
   font-size: 14px;
@@ -47,9 +49,9 @@
 #cava,
 #workspaces {
   padding: 3px 15px;
-  border: 1px solid #414559;
-  border-bottom: 2px solid #414559;
-  border-top: 2px solid #414559;
+  border: 1px solid @surface0;
+  border-bottom: 2px solid @surface0;
+  border-top: 2px solid @surface0;
 }
 
 #network,
@@ -64,7 +66,7 @@
 #hardware,
 #workspaces,
 #wireplumber {
-  background-color: #303446;
+  background-color: #181825;
 }
 
 #network,
@@ -81,56 +83,60 @@
   border-left: none;
 }
 
-/* Module colors */
-#window {
-  padding: 5px 15px;
-  background-color: transparent;
-  border: none;
-  color: #a5adce;
+/* 
+ * Module right colors
+ */
+
+#backlight {
+  color: @flamingo;
+}
+
+#wireplumber {
+  color: @mauve;
 }
 
 #network {
-  color: #81c8be;
+  color: @red;
 }
 
 #bluetooth {
-  color: #a6d189;
+  color: @peach;
 }
 
 #battery {
-  color: #ef9f76;
+  color: @green;
+}
+
+#battery.warning {
+  color: orange;
+}
+
+#battery.critical {
+  color: red;
 }
 
 #hardware {
-  color: #e78284;
+  color: @blue;
 }
 
 #clock {
   border-top-right-radius: 10px;
   border-bottom-right-radius: 10px;
-  color: #ca9ee6;
+  color: @lavender;
 }
+
+/* 
+* Module left colors
+*/
 
 #power {
   border-top-left-radius: 10px;
   border-bottom-left-radius: 10px;
-  color: #a6d189;
-}
-
-#backlight {
-  color: #ca9ee6;
-}
-
-#wireplumber {
-  color: #8caaee;
-}
-
-#cava {
-  color: #8caaee;
+  color: @red;
 }
 
 #workspaces {
-  color: #ca9ee6;
+  color: @green;
 }
 
 #workspaces button {
@@ -139,19 +145,21 @@
   color: #737994;
 }
 #workspaces button.active {
-  color: #e78284;
-  background-color: #414559;
+  color: @green;
+  background-color: @surface0;
 }
 
 #workspaces button:hover {
   color: #c6d0f5;
 }
 
-/* Module states */
-#battery.warning {
-  color: orange;
+#cava {
+  color: @blue;
 }
 
-#battery.critical {
-  color: red;
+#window {
+  padding: 5px 15px;
+  background-color: transparent;
+  border: none;
+  color: @subtext0;
 }
