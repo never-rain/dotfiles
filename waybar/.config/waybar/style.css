@@ -3,7 +3,7 @@
 #waybar {
   background-color: @base;
   border: 2px solid @surface0;
-  border-radius: 10px;
+  border-radius: 6px;
   font-family: "MonoLisa Code", monospace;
   font-size: 14px;
   font-weight: 400;
