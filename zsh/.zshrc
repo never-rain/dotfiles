@@ -6,7 +6,6 @@ plug "zsh-users/zsh-autosuggestions"
 plug "zsh-users/zsh-syntax-highlighting"
 plug "zap-zsh/completions"
 plug "zap-zsh/sudo"
-plug "wintermi/zsh-starship"
 plug "zsh-users/zsh-history-substring-search"
 plug "zap-zsh/fzf"
 plug "Aloxaf/fzf-tab"
@@ -47,11 +46,21 @@ alias e="exit"
 alias w="w3m"
 alias deploy-website="scp -r dist/* seventrees.io:/var/www/seventrees.io"
 
+# Useful doccker aliases
+alias d="docker"
+alias di="docker image"
+alias dc="docker container"
+alias dr="docker run"
+alias dps="docker ps"
+alias dil="docker image list"
+alias dcl="docker container list"
+
 # Load and initialise completion system
 autoload -Uz compinit
 compinit
 
-eval "$(starship init zsh)"
 export PATH="$HOME/.platformio/penv/bin:$PATH"
 export PNPM_HOME="$HOME/.local/share/pnpm"
 export PATH="$PNPM_HOME/bin:$PATH"
+
+eval "$(starship init zsh)"
