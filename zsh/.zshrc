@@ -54,6 +54,7 @@ alias dr="docker run"
 alias dps="docker ps"
 alias dil="docker image list"
 alias dcl="docker container list"
+alias dvl="docker volume list"
 
 # Load and initialise completion system
 autoload -Uz compinit
