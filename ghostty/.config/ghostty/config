@@ -16,3 +16,6 @@ auto-update-channel         = stable
 shell-integration-features  = no-cursor
 cursor-style                = block
 cursor-style-blink          = true
+unfocused-split-opacity     = 0.8
+unfocused-split-fill        = #000000
+focus-follows-mouse         = true

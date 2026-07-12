@@ -95,7 +95,7 @@
     "tooltip": false,
   },
   "bluetooth": {
-    "on-click": "$HOME/.config/waybar/scripts/bluetooth-menu.sh",
+    "on-click": "wifi-manager --toggle",
     "on-click-right": "$HOME/.config/waybar/scripts/bluetooth-menu.sh off",
     "format": "󰂯",
     "format-off": "󰂲",
@@ -123,7 +123,7 @@
     "format-wifi": "󰖩 {essid}",
     "format-ethernet": "󰈀 {ipaddr}/{cidr}",
     "format-disconnected": "󰖪 ",
-    "on-click": "$HOME/.config/waybar/scripts/wifi-menu.sh",
+    "on-click": "wifi-manager --toggle",
     "on-click-right": "$HOME/.config/waybar/scripts/wifi-menu.sh off",
     "tooltip": false,
   },

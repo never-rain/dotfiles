@@ -16,6 +16,7 @@ hl.monitor({
 hl.on("hyprland.start", function()
   hl.config({ general = { layout = currentLayout } })
   hl.exec_cmd("hypridle")
+  hl.exec_cmd("wifi-manager")
   hl.exec_cmd("awww-daemon")
   hl.exec_cmd("awww-random-wallpaper")
   hl.exec_cmd("waybar")
@@ -96,6 +97,13 @@ hl.layer_rule({
   ignore_alpha = 0,
 })
 
+hl.layer_rule({
+  match = { namespace = "wifi-manager" },
+  name = "wifi-manager",
+  blur = true,
+  ignore_alpha = 0.3,
+})
+
 hl.curve("MyCurve", {
   type = "bezier",
   points = {
@@ -115,6 +123,7 @@ hl.device({
 })
 
 hl.bind(mainMod .. " + SHIFT + M", hl.dsp.layout("swapwithmaster master ignoremaster"))
+hl.bind(mainMod .. " + W", hl.dsp.exec_cmd("wifi-manager --toggle"))
 hl.bind(mainMod .. " + N", hl.dsp.exec_cmd(terminal))
 hl.bind(mainMod .. " + Q", hl.dsp.window.close())
 hl.bind(mainMod .. " + M", function()

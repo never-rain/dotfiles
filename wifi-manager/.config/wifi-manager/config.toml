@@ -1,0 +1,32 @@
+# Window position on screen.
+# Options: center, top-right, top-center, top-left,
+#          bottom-right, bottom-center, bottom-left,
+#          center-right, center-left
+position = "center"
+
+# Margin offsets in pixels (only effective on anchored edges).
+margin_top = 54
+margin_right = 10
+margin_bottom = 10
+margin_left = 10
+
+# Custom signal strength icons [weak, fair, good, strong]
+# Default: Nerd Fonts WiFi icons
+signal_icons = ["󰤟", "󰤢", "󰤥", "󰤨"]
+
+# Custom control icons (Nerd Font / font glyphs)
+# Night Mode toggles:
+# night_mode_off_icon = ""
+# night_mode_on_icon  = ""
+#
+# Power actions:
+# logout_icon   = ""
+# reboot_icon   = ""
+# suspend_icon  = "󰒲"
+# poweroff_icon = ""
+
+# Whether to show the panel immediately when the daemon starts (default: false)
+show_on_start = false
+
+# Alternative examples:
+# signal_icons = ["▂___", "▂▄__", "▂▄▆_", "▂▄▆█"]
