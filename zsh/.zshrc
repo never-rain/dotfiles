@@ -1,3 +1,8 @@
+# ~/.zshrc
+typeset -U path PATH
+
+[ -f "$HOME/.cargo/env" ] && . "$HOME/.cargo/env"
+
 # Created by Zap installer
 [ -f "${XDG_DATA_HOME:-$HOME/.local/share}/zap/zap.zsh" ] && source "${XDG_DATA_HOME:-$HOME/.local/share}/zap/zap.zsh"
 
@@ -7,6 +12,7 @@ plug "zsh-users/zsh-syntax-highlighting"
 plug "zap-zsh/completions"
 plug "zap-zsh/sudo"
 plug "zsh-users/zsh-history-substring-search"
+plug "fzf"
 plug "zap-zsh/fzf"
 plug "Aloxaf/fzf-tab"
 plug "chivalryq/git-alias"
@@ -43,6 +49,7 @@ alias m="tmatrix -c default"
 alias lg="lazygit"
 alias cat="bat"
 alias e="exit"
+alias q="exit"
 alias w="w3m"
 alias deploy-website="scp -r dist/* seventrees.io:/var/www/seventrees.io"
 
@@ -61,7 +68,21 @@ autoload -Uz compinit
 compinit
 
 export PATH="$HOME/.platformio/penv/bin:$PATH"
-export PNPM_HOME="$HOME/.local/share/pnpm"
-export PATH="$PNPM_HOME/bin:$PATH"
 
 eval "$(starship init zsh)"
+
+# fnm
+FNM_PATH="/home/darkstar/.local/share/fnm"
+if [ -d "$FNM_PATH" ]; then
+  path=(${path:#/run/user/*/fnm_multishells/*/bin})
+  export PATH="$FNM_PATH:$PATH"
+  eval "$(fnm env --use-on-cd --shell zsh)"
+fi
+
+# pnpm
+export PNPM_HOME="/home/darkstar/.local/share/pnpm"
+case ":$PATH:" in
+  *":$PNPM_HOME/bin:"*) ;;
+  *) export PATH="$PNPM_HOME/bin:$PATH" ;;
+esac
+# pnpm end
