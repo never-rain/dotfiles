@@ -12,13 +12,13 @@
 
 .env
 
-vim/.vim/backup/*.*
+vim/.vim/backup
 !vim/.vim/backup/.gitkeep
 
-vim/.vim/undo/*.*
+vim/.vim/undo
 !vim/.vim/undo/.gitkeep
 
-vim/.vim/swap/*.*
+vim/.vim/swap
 !vim/.vim/swap/.gitkeep
 
 vim/.vim/.netrwhist
