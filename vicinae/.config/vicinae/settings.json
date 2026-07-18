@@ -13,7 +13,7 @@
    "close_on_focus_loss": true,
    "font": {
       "normal": {
-         "family": "Inter 18pt",
+         "family": "MonoLisaText",
          "size": 12
       }
    },

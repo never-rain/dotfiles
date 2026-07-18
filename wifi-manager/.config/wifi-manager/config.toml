@@ -2,7 +2,7 @@
 # Options: center, top-right, top-center, top-left,
 #          bottom-right, bottom-center, bottom-left,
 #          center-right, center-left
-position = "top-center"
+position = "center"
 
 # Margin offsets in pixels (only effective on anchored edges).
 margin_top = 54
