@@ -22,7 +22,7 @@ while true; do
     "$awww_bin" img "$wallpaper" \
       --resize crop \
       --transition-type random \
-      --transition-duration 3 \
+      --transition-duration 10 \
       --transition-fps 60
   fi
 

@@ -22,11 +22,14 @@
          "name": "catppuccin-mocha"
       }
    },
-   "favorites": [
-      "applications:com.google.Chrome",
-      "applications:com.mitchellh.ghostty",
-      "applications:code_code",
-      "applications:proton-mail_proton-mail",
-      "applications:telegram-desktop_telegram-desktop"
-   ]
+   "telemetry": {
+      "system_info": false
+   },
+   "launcher_window": {
+      "opacity": 0.75,
+      "compact_mode": {
+         "enabled": false
+      }
+   },
+   "favorites": []
 }
