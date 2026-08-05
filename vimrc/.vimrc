@@ -19,6 +19,8 @@ set termguicolors
 syntax enable
 filetype plugin indent on
 colorscheme catppuccin_mocha
+highlight! link jsonQuote String
+highlight! link jsonNoise Delimiter
 set number
 set relativenumber
 set mouse=a
