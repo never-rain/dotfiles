@@ -51,6 +51,7 @@ alias cat="bat"
 alias e="exit"
 alias q="exit"
 alias w="w3m"
+alias wee="weechat"
 alias deploy-website="scp -r dist/* seventrees.io:/var/www/seventrees.io"
 
 # Useful doccker aliases
