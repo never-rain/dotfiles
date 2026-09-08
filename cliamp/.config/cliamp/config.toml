@@ -1,0 +1,5 @@
+theme = "catppuccin"
+
+visualizer = "ClassicPeak"
+[radio]
+country = "CH"
