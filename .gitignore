@@ -12,13 +12,16 @@
 
 .env
 
-vim/.vim/backup
-!vim/.vim/backup/.gitkeep
+# Von vim-plug installierte Plugins
+vim/.vim/plugged/
 
-vim/.vim/undo
-!vim/.vim/undo/.gitkeep
-
-vim/.vim/swap
-!vim/.vim/swap/.gitkeep
-
+# Vim-Laufzeitdaten
+vim/.vim/backup/*
+vim/.vim/swap/*
+vim/.vim/undo/*
 vim/.vim/.netrwhist
+
+# Leere Verzeichnisse optional behalten
+!vim/.vim/backup/.gitkeep
+!vim/.vim/swap/.gitkeep
+!vim/.vim/undo/.gitkeep

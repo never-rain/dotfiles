@@ -16,10 +16,10 @@ hl.monitor({
 hl.on("hyprland.start", function()
 	hl.config({ general = { layout = currentLayout } })
 	hl.exec_cmd("hypridle")
-	hl.exec_cmd("wifi-manager")
 	hl.exec_cmd("awww-daemon")
-	hl.exec_cmd("awww-random-wallpaper")
+	hl.exec_cmd("$HOME/.config/hypr/awww-random-wallpaper")
 	hl.exec_cmd("waybar")
+  hl.exec_cmd("orbit daemon")
 	hl.exec_cmd("vicinae server")
 end)
 
@@ -102,10 +102,10 @@ hl.layer_rule({
 })
 
 hl.layer_rule({
-	match = { namespace = "wifi-manager" },
-	name = "wifi-manager",
+	match = { namespace = "orbit" },
+	name = "orbit-blur",
 	blur = true,
-	ignore_alpha = 0.3,
+	ignore_alpha = 0,
 })
 
 hl.curve("MyCurve", {
@@ -127,7 +127,7 @@ hl.device({
 })
 
 hl.bind(mainMod .. " + SHIFT + M", hl.dsp.layout("swapwithmaster master ignoremaster"))
-hl.bind(mainMod .. " + W", hl.dsp.exec_cmd("wifi-manager --toggle"))
+hl.bind(mainMod .. " + W", hl.dsp.exec_cmd("orbit toggle"))
 hl.bind(mainMod .. " + N", hl.dsp.exec_cmd(terminal))
 hl.bind(mainMod .. " + Q", hl.dsp.window.close())
 hl.bind(mainMod .. " + M", function()
