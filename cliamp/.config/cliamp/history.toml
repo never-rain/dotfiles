@@ -1,4 +1,9 @@
 [[entry]]
+played_at = "2026-09-10T18:04:11Z"
+path = "https://radio.cliamp.stream/lofi/stream"
+title = "Lofi"
+
+[[entry]]
 played_at = "2026-09-08T16:51:08Z"
 path = "http://radio.cliamp.stream/lofi/stream"
 title = "Lofi Stream"
@@ -17,11 +22,6 @@ title = "Synthwave Stream"
 played_at = "2026-09-06T20:39:13Z"
 path = "https://radio.cliamp.stream/ncs-dubstep/stream"
 title = "NCS Dubstep"
-
-[[entry]]
-played_at = "2026-09-06T20:38:12Z"
-path = "https://radio.cliamp.stream/lofi/stream"
-title = "Lofi"
 
 [[entry]]
 played_at = "2026-09-06T20:37:23Z"
