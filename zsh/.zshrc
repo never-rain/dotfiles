@@ -47,7 +47,7 @@ alias y="yazi"
 alias co="codex"
 alias m="tmatrix -c default"
 alias lg="lazygit"
-alias cat="bat"
+alias cat="batcat"
 alias e="exit"
 alias q="exit"
 alias w="w3m"
@@ -71,14 +71,6 @@ compinit
 export PATH="$HOME/.platformio/penv/bin:$PATH"
 
 eval "$(starship init zsh)"
-
-# fnm
-FNM_PATH="/home/darkstar/.local/share/fnm"
-if [ -d "$FNM_PATH" ]; then
-  path=(${path:#/run/user/*/fnm_multishells/*/bin})
-  export PATH="$FNM_PATH:$PATH"
-  eval "$(fnm env --use-on-cd --shell zsh)"
-fi
 
 # pnpm
 export PNPM_HOME="/home/darkstar/.local/share/pnpm"
