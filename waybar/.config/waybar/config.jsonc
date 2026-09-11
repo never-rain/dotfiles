@@ -95,8 +95,7 @@
     "tooltip": false,
   },
   "bluetooth": {
-    "on-click": "wifi-manager --toggle",
-    "on-click-right": "$HOME/.config/waybar/scripts/bluetooth-menu.sh off",
+    "on-click": "orbit toggle --tab bluetooth",
     "format": "󰂯",
     "format-off": "󰂲",
     "tooltip": false,
@@ -123,8 +122,7 @@
     "format-wifi": "󰖩 {essid}",
     "format-ethernet": "󰈀 {ipaddr}/{cidr}",
     "format-disconnected": "󰖪 ",
-    "on-click": "wifi-manager --toggle",
-    "on-click-right": "$HOME/.config/waybar/scripts/wifi-menu.sh off",
+    "on-click": "orbit toggle --tab wifi",
     "tooltip": false,
   },
   "clock": {
