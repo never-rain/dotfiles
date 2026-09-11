@@ -10,14 +10,8 @@
   "fixed-center": false,
   "passthrough": false,
   "reload_style_on_change": true,
-  "modules-left": [
-    "group/power",
-    "hyprland/workspaces",
-    "cava"
-  ],
-  "modules-center": [
-    "hyprland/window"
-  ],
+  "modules-left": ["group/power", "hyprland/workspaces", "cava"],
+  "modules-center": ["hyprland/window"],
   "modules-right": [
     "backlight",
     "wireplumber",
@@ -36,10 +30,11 @@
       "start-expanded": false,
     },
     "modules": [
-      "custom/shutdown",
       "custom/lock",
-      "custom/reboot",
+      "custom/sleep",
       "custom/logout",
+      "custom/reboot",
+      "custom/shutdown",
     ],
   },
   "wireplumber": {
@@ -68,6 +63,11 @@
     "on-click": "systemctl reboot",
     "tooltip": false,
   },
+  "custom/sleep": {
+    "format": " 󰒲 ",
+    "on-click": "systemctl suspend",
+    "tooltip": false,
+  },
   "group/hardware": {
     "orientation": "inherit",
     "drawer": {
@@ -76,12 +76,7 @@
       "transition-left-to-right": false,
       "start-expanded": false,
     },
-    "modules": [
-      "cpu",
-      "disk",
-      "memory",
-      "temperature"
-    ],
+    "modules": ["cpu", "disk", "memory", "temperature"],
   },
   "hyprland/window": {
     "format": "{title}",
@@ -115,18 +110,7 @@
     "interval": 10,
     "format": "{icon} {capacity}%",
     "tooltip": false,
-    "format-icons": [
-      "󰁺",
-      "󰁻",
-      "󰁼",
-      "󰁽",
-      "󰁾",
-      "󰁿",
-      "󰂀",
-      "󰂁",
-      "󰂂",
-      "󰁹"
-    ],
+    "format-icons": ["󰁺", "󰁻", "󰁼", "󰁽", "󰁾", "󰁿", "󰂀", "󰂁", "󰂂", "󰁹"],
     "states": {
       "warning": 20,
       "critical": 10,
@@ -163,18 +147,6 @@
     "hide_on_silence": false,
     "format_silent": "󱑽 Silence",
     // "format-icons": [" ", "▁", "▂", "▃", "▄", "▅", "▆", "▇", "█"],
-    "format-icons": [
-      " ",
-      "▖",
-      "▗",
-      "▘",
-      "▙",
-      "▚",
-      "▛",
-      "▜",
-      "▝",
-      "▞",
-      "▟"
-    ],
+    "format-icons": [" ", "▖", "▗", "▘", "▙", "▚", "▛", "▜", "▝", "▞", "▟"],
   },
 }
