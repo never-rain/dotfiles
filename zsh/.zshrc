@@ -1,88 +1,18 @@
 # ~/.zshrc
 typeset -U path PATH
 
-[ -f "$HOME/.cargo/env" ] && . "$HOME/.cargo/env"
+source "$HOME/.zshrc.d/all.zsh"
 
-# Created by Zap installer
-[ -f "${XDG_DATA_HOME:-$HOME/.local/share}/zap/zap.zsh" ] && source "${XDG_DATA_HOME:-$HOME/.local/share}/zap/zap.zsh"
+() {
+  # Domainanteil entfernen, z. B. neverrain.example.org -> neverrain.
+  local machine_name="${HOST%%.*}"
 
-plug "zap-zsh/supercharge"
-plug "zsh-users/zsh-autosuggestions"
-plug "zsh-users/zsh-syntax-highlighting"
-plug "zap-zsh/completions"
-plug "zap-zsh/sudo"
-plug "zsh-users/zsh-history-substring-search"
-plug "fzf"
-plug "zap-zsh/fzf"
-plug "Aloxaf/fzf-tab"
-plug "chivalryq/git-alias"
-plug "MichaelAquilina/zsh-you-should-use"
+  # Nur einfache Dateinamen zulassen; all.zsh wurde bereits geladen.
+  [[ -n "$machine_name" && "$machine_name" != *[^a-zA-Z0-9_-]* ]] || return 0
+  [[ "$machine_name" != all ]] || return 0
 
-# OS-aware config loading
-case "$OSTYPE" in
-  darwin*) ZSH_OS="macos" ;;
-  linux*) ZSH_OS="linux" ;;
-  *) ZSH_OS="unknown" ;;
-esac
-ZSHRC_DIR="${${(%):-%N}:A:h}"
-ZSHRC_D_DIR="$ZSHRC_DIR/.zshrc.d"
-[ -r "$ZSHRC_D_DIR/common.zsh" ] && source "$ZSHRC_D_DIR/common.zsh"
-[ -r "$ZSHRC_D_DIR/${ZSH_OS}.zsh" ] && source "$ZSHRC_D_DIR/${ZSH_OS}.zsh"
-
-# ENV Variables
-export VISUAL="code"
-export EDITOR="code"
-
-# Misc aliases
-alias spider="telnet dx.da0bcc.de 7300"
-alias c="clear"
-alias lts="eza -1lga --icons=auto --git --total-size"
-alias l="eza -1lga --icons=auto --git"
-alias ff="c;fastfetch"
-alias n="nano"
-alias v="vim"
-alias nv="nvim"
-alias t="tree -a"
-alias y="yazi"
-alias co="codex"
-alias m="tmatrix -c default"
-alias lg="lazygit"
-alias cat="batcat"
-alias e="exit"
-alias q="exit"
-alias w="w3m"
-alias wee="weechat"
-alias deploy-website="scp -r dist/* seventrees.io:/var/www/seventrees.io"
-
-# Useful doccker aliases
-alias d="docker"
-alias di="docker image"
-alias dc="docker container"
-alias dv="docker volume"
-alias dps="docker ps"
-alias dil="docker image list"
-alias dcl="docker container list"
-alias dvl="docker volume list"
-
-# Load and initialise completion system
-autoload -Uz compinit
-compinit
-
-export PATH="$HOME/.platformio/penv/bin:$PATH"
-
-eval "$(starship init zsh)"
-
-# pnpm
-export PNPM_HOME="/home/darkstar/.local/share/pnpm"
-case ":$PATH:" in
-  *":$PNPM_HOME/bin:"*) ;;
-  *) export PATH="$PNPM_HOME/bin:$PATH" ;;
-esac
-# pnpm end
-
-# fnm
-FNM_PATH="/home/darkstar/.local/share/fnm"
-if [ -d "$FNM_PATH" ]; then
-  export PATH="$FNM_PATH:$PATH"
-  eval "$(fnm env --shell zsh)"
-fi
+  local machine_config="$HOME/.zshrc.d/$machine_name.zsh"
+  if [[ -r "$machine_config" ]]; then
+    source "$machine_config"
+  fi
+}
