@@ -1,0 +1,9 @@
+unalias ctl
+unalias sctl
+unalias jrnl
+unalias sjrnl
+unalias m
+unalias lg
+unalias w
+unalias wee
+unalias co
