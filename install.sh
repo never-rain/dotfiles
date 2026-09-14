@@ -189,20 +189,103 @@ install_packages() {
   fi
 }
 
+set_zsh_as_login_shell() {
+  local zsh_path username passwd_entry current_shell
+  if ! zsh_path=$(command -v zsh); then
+    printf '\nZsh ist nicht installiert; Änderung der Login-Shell übersprungen.\n'
+    return
+  fi
+
+  username=$(id -un)
+  # getent liest den Kontoeintrag. $SHELL kann nach einer früheren Änderung noch
+  # den alten Wert der laufenden Sitzung enthalten und ist dafür ungeeignet.
+  passwd_entry=$(getent passwd "$username")
+  # ##*: entfernt alles bis zum letzten Doppelpunkt: Übrig bleibt die Shell.
+  current_shell=${passwd_entry##*:}
+  # -ef erkennt auch /bin/zsh und /usr/bin/zsh als gleich, wenn sie auf dieselbe
+  # Datei zeigen. Dann ist keine erneute Änderung nötig.
+  if [[ "$current_shell" -ef "$zsh_path" ]]; then
+    printf '\nZsh ist bereits die Login-Shell für %s.\n' "$username"
+    return
+  fi
+  if ! command -v chsh >/dev/null; then
+    printf '\nchsh fehlt (Paket passwd); Änderung der Login-Shell übersprungen.\n' >&2
+    return
+  fi
+  # chsh erlaubt normalen Benutzern nur Shells aus /etc/shells.
+  # -F sucht festen Text, -x eine ganze Zeile und -q unterdrückt die Ausgabe.
+  if ! grep -Fxq -- "$zsh_path" /etc/shells; then
+    printf '\n%s ist nicht in /etc/shells freigegeben; Shell-Wechsel übersprungen.\n' "$zsh_path" >&2
+    return
+  fi
+
+  printf '\nLogin-Shell für %s: %s → %s\n' "$username" "$current_shell" "$zsh_path"
+  if confirm 'Zsh als Standard-Shell für diesen Benutzer eintragen?'; then
+    # Ohne sudo: chsh ändert nur dein Konto und kann dein Passwort abfragen.
+    chsh --shell "$zsh_path" "$username"
+    passwd_entry=$(getent passwd "$username")
+    if [[ ! "${passwd_entry##*:}" -ef "$zsh_path" ]]; then
+      printf 'Die neue Login-Shell konnte nicht bestätigt werden.\n' >&2
+      exit 1
+    fi
+    printf 'Zsh ist eingetragen. Die Änderung gilt nach vollständigem Ab- und Anmelden.\n'
+  fi
+}
+
 install_zap() {
   local zap_dir=${XDG_DATA_HOME:-$HOME/.local/share}/zap
   if [[ -e "$zap_dir" || -L "$zap_dir" ]]; then
     printf 'Zap-Pfad existiert bereits: %s; übersprungen.\n' "$zap_dir"
     return
   fi
-  if ! ensure_tools curl git zsh; then return; fi
-  prepare_downloads
-  curl -fsSL https://raw.githubusercontent.com/zap-zsh/zap/master/install.zsh \
-    -o "$temp_dir/zap-install.zsh"
-  # --keep bewahrt deine .zshrc. Zap wird hier nur installiert; die Einbindung
-  # übernimmt deine Zsh-Konfiguration. -f unterdrückt die üblichen Startdateien;
-  # der Zap-Installer selbst lädt am Ende trotzdem eine vorhandene .zshrc.
-  zsh -f "$temp_dir/zap-install.zsh" --branch release-v1 --keep
+  if ! ensure_tools git zsh; then return; fi
+  # Der Upstream-Installer klont diesen Branch, lädt danach aber die .zshrc.
+  # Auf einem frischen System kann diese vor dem Stow-Schritt noch fehlen.
+  # Deshalb klonen wir direkt: Die Konfiguration wird weder geändert noch geladen.
+  mkdir -p -- "$(dirname -- "$zap_dir")"
+  git clone --branch release-v1 https://github.com/zap-zsh/zap.git "$zap_dir"
+}
+
+stow_dotfiles() {
+  local package_dir
+  local -a stow_packages=()
+  # In diesem Repository ist jedes sichtbare Unterverzeichnis ein Stow-Paket.
+  # */ findet nur Verzeichnisse; versteckte Ordner wie .git bleiben außen vor.
+  for package_dir in */; do
+    [[ -d "$package_dir" ]] || continue
+    # %/ entfernt den abschließenden Slash aus dem Paketnamen.
+    stow_packages+=("${package_dir%/}")
+  done
+  if (( ${#stow_packages[@]} == 0 )); then
+    printf 'Keine Stow-Pakete gefunden.\n'
+    return
+  fi
+
+  printf '\nStow-Pakete für %s:\n' "$HOME"
+  printf '  %s\n' "${stow_packages[@]}"
+  if ! confirm 'Alle diese Dotfiles mit Stow verknüpfen?'; then
+    return
+  fi
+  if ! ensure_tools stow; then return; fi
+
+  # --dir ist das Repository, --target immer das Home-Verzeichnis. Dadurch
+  # funktioniert Stow auch, wenn der Checkout z.B. unter ~/Downloads liegt.
+  # --no-folding erstellt echte Zielverzeichnisse und verlinkt einzelne Dateien.
+  # Alle Pakete gemeinsam prüfen: Auch Konflikte zwischen Paketen werden erkannt.
+  # --simulate zeigt den Plan, ohne etwas zu ändern; --verbose erklärt die Links.
+  if ! stow --dir="$PWD" --target="$HOME" --no-folding --simulate --verbose \
+    --stow -- "${stow_packages[@]}"; then
+    printf '\nStow-Probelauf fehlgeschlagen; keine Verknüpfungen erstellt.\n' >&2
+    printf 'Bei Dateikonflikten die angezeigten Zieldateien prüfen und bei Bedarf\n' >&2
+    printf 'manuell sichern/verschieben. Danach das Script erneut starten.\n' >&2
+    exit 1
+  fi
+
+  # Ohne --adopt: Vorhandene fremde Dateien werden nicht ins Repository übernommen.
+  # Kein sudo: Die Links gehören dem Benutzer. Korrekte Links bleiben bestehen,
+  # deshalb kann dieser Schritt auch später erneut ausgeführt werden.
+  stow --dir="$PWD" --target="$HOME" --no-folding --verbose \
+    --stow -- "${stow_packages[@]}"
 }
 
 # Der Hauptablauf liest sich wie eine Checkliste. Funktionen werden hier normal
@@ -221,8 +304,12 @@ fi
 
 install_packages
 
+set_zsh_as_login_shell
+
 if confirm 'Zap für Zsh installieren (bestehende .zshrc behalten)?'; then
   install_zap
 fi
+
+stow_dotfiles
 
 printf '\nAusgewählte Schritte abgeschlossen.\n'
