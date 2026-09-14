@@ -13,6 +13,7 @@ eza
 fastfetch
 fd-find
 fzf
+gh
 ghostty
 git
 git-flow
@@ -25,6 +26,7 @@ nano
 ninja-build
 ripgrep
 rsync
+starship
 stow
 sway-notification-center
 telnet
