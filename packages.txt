@@ -33,6 +33,7 @@ sway-notification-center
 telnet
 tmatrix
 tree
+unzip
 vim
 w3m
 w3m-el

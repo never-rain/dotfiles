@@ -84,7 +84,7 @@ alias dvl="docker volume list"
 # fnm
 [[ -d "$HOME/.local/share/fnm" ]] && path=("$HOME/.local/share/fnm" $path)
 if (( $+commands[fnm] )); then
-  eval "$(fnm env --shell zsh)"
+  eval "$(fnm env --use-on-cd --shell zsh)"
 fi
 
 if (( $+commands[starship] )); then
