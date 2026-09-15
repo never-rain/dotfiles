@@ -23,6 +23,7 @@ luarocks
 make
 meson
 nano
+neovim
 ninja-build
 ripgrep
 rsync
