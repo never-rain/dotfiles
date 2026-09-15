@@ -283,14 +283,59 @@ install_pnpm() {
   pnpm --version
 }
 
+ensure_node_for_codex() {
+  # Ein vorhandenes, ausführbares Node genügt, auch wenn es nicht von fnm stammt.
+  if command -v node >/dev/null && node --version >/dev/null 2>&1; then
+    return 0
+  fi
+
+  local fnm_executable fnm_environment node_version
+  fnm_executable=$(command -v fnm || true)
+  if [[ -z "$fnm_executable" && -x "$HOME/.local/share/fnm/fnm" ]]; then
+    fnm_executable="$HOME/.local/share/fnm/fnm"
+  fi
+  if [[ -z "$fnm_executable" ]]; then
+    printf 'Node.js und fnm fehlen; Codex-Schritt übersprungen. Bitte zuerst fnm installieren.\n' >&2
+    return 1
+  fi
+
+  # Das Install-Script läuft in Bash und liest keine .zshrc. fnm env erzeugt
+  # passende export-Befehle, die eval in DIESEM Prozess ausführt. Nur fnm zu
+  # installieren oder chsh aufzurufen macht Node hier noch nicht verfügbar.
+  # Zuweisung und eval getrennt halten, damit ein Fehler von fnm erkannt wird.
+  # Wie bei ensure_tools gilt: In if-Bedingungen müssen Fehler explizit stoppen.
+  fnm_environment=$("$fnm_executable" env --shell bash) || exit 1
+  eval "$fnm_environment" || exit 1
+
+  if "$fnm_executable" use default >/dev/null 2>&1 && node --version >/dev/null 2>&1; then
+    printf 'Vorhandene fnm-Standardversion von Node.js aktiviert.\n'
+    return 0
+  fi
+  if ! confirm 'Node.js LTS mit fnm installieren, aktivieren und als fnm-Standard setzen?'; then
+    printf 'Codex-Schritt wegen fehlendem Node.js übersprungen.\n'
+    return 1
+  fi
+
+  # --use aktiviert die installierte Version sofort. default sorgt dafür, dass
+  # sie auch in neuen Terminals mit unserer fnm-Konfiguration verfügbar ist.
+  "$fnm_executable" install --lts --use || exit 1
+  node_version=$(node --version) || exit 1
+  "$fnm_executable" default "$node_version" || exit 1
+  printf 'Node.js %s ist für Codex verfügbar.\n' "$node_version"
+}
+
 install_codex() {
   prepare_pnpm_environment
-  if command -v codex >/dev/null; then
-    printf 'Codex CLI ist bereits installiert; übersprungen.\n'
-    return
-  fi
   if ! command -v pnpm >/dev/null; then
     printf 'pnpm fehlt; Codex-Installation übersprungen. Bitte zuerst pnpm installieren.\n' >&2
+    return
+  fi
+  if ! ensure_node_for_codex; then return; fi
+  # Auch bei einem erneuten Durchlauf Node vorbereiten und Codex prüfen:
+  # Ein vorhandener Launcher allein beweist keine funktionsfähige Installation.
+  if command -v codex >/dev/null; then
+    codex --version
+    printf 'Codex CLI ist bereits installiert; Neuinstallation übersprungen.\n'
     return
   fi
 
@@ -341,10 +386,10 @@ stow_dotfiles() {
 
   # --dir ist das Repository, --target immer das Home-Verzeichnis. Dadurch
   # funktioniert Stow auch, wenn der Checkout z.B. unter ~/Downloads liegt.
-  # --no-folding erstellt echte Zielverzeichnisse und verlinkt einzelne Dateien.
+  # Stow verlinkt standardmäßig nach Möglichkeit ganze Verzeichnisse.
   # Alle Pakete gemeinsam prüfen: Auch Konflikte zwischen Paketen werden erkannt.
   # --simulate zeigt den Plan, ohne etwas zu ändern; --verbose erklärt die Links.
-  if ! stow --dir="$PWD" --target="$HOME" --no-folding --simulate --verbose \
+  if ! stow --dir="$PWD" --target="$HOME" --simulate --verbose \
     --stow -- "${stow_packages[@]}"; then
     printf '\nStow-Probelauf fehlgeschlagen; keine Verknüpfungen erstellt.\n' >&2
     printf 'Bei Dateikonflikten die angezeigten Zieldateien prüfen und bei Bedarf\n' >&2
@@ -355,7 +400,7 @@ stow_dotfiles() {
   # Ohne --adopt: Vorhandene fremde Dateien werden nicht ins Repository übernommen.
   # Kein sudo: Die Links gehören dem Benutzer. Korrekte Links bleiben bestehen,
   # deshalb kann dieser Schritt auch später erneut ausgeführt werden.
-  stow --dir="$PWD" --target="$HOME" --no-folding --verbose \
+  stow --dir="$PWD" --target="$HOME" --verbose \
     --stow -- "${stow_packages[@]}"
 }
 
