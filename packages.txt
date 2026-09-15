@@ -13,6 +13,7 @@ eza
 fastfetch
 fd-find
 fzf
+gh
 ghostty
 git
 git-flow
@@ -22,9 +23,11 @@ luarocks
 make
 meson
 nano
+neovim
 ninja-build
 ripgrep
 rsync
+starship
 stow
 sway-notification-center
 telnet
