@@ -9,7 +9,7 @@ set -euo pipefail
 # unabhängig davon, aus welchem Verzeichnis das Script gestartet wurde.
 cd -- "$(dirname -- "${BASH_SOURCE[0]}")"
 
-if (( EUID == 0 )); then
+if ((EUID == 0)); then
   printf 'Bitte als normaler Benutzer starten: bash install.sh\n' >&2
   printf 'Nur die Systemschritte verwenden sudo. Zap gehört deinem Benutzer.\n' >&2
   exit 1
@@ -44,9 +44,9 @@ confirm() {
     fi
     # ${answer,,} wandelt in Kleinbuchstaben um; Enter bedeutet Nein.
     case "${answer,,}" in
-      j|ja|y|yes) return 0 ;;
-      n|nein|no|'') return 1 ;;
-      *) printf 'Bitte j oder n eingeben. Enter überspringt den Schritt.\n' ;;
+    j | ja | y | yes) return 0 ;;
+    n | nein | no | '') return 1 ;;
+    *) printf 'Bitte j oder n eingeben. Enter überspringt den Schritt.\n' ;;
     esac
   done
 }
@@ -66,7 +66,7 @@ ensure_tools() {
     [[ $(dpkg-query -W -f='${Status}' ca-certificates 2>/dev/null || true) != 'install ok installed' ]]; then
     missing+=(ca-certificates)
   fi
-  if (( ${#missing[@]} == 0 )); then
+  if ((${#missing[@]} == 0)); then
     return 0
   fi
 
@@ -132,7 +132,7 @@ add_github_repo() {
   sudo install -d -m 0755 /etc/apt/keyrings /etc/apt/sources.list.d
   sudo install -m 0644 "$temp_dir/githubcli.gpg" /etc/apt/keyrings/githubcli-archive-keyring.gpg
   printf 'deb [arch=%s signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main\n' \
-    "$(dpkg --print-architecture)" > "$temp_dir/github-cli.list"
+    "$(dpkg --print-architecture)" >"$temp_dir/github-cli.list"
   sudo install -m 0644 "$temp_dir/github-cli.list" /etc/apt/sources.list.d/github-cli.list
 }
 
@@ -163,7 +163,7 @@ add_griffo_repo() {
   sudo install -m 0644 "$temp_dir/griffo.gpg" /etc/apt/keyrings/deb.griffo.io.gpg
   # signed-by beschränkt diesen Schlüssel auf das zugehörige Repository.
   printf 'deb [signed-by=/etc/apt/keyrings/deb.griffo.io.gpg] https://deb.griffo.io/apt %s main\n' \
-    "$codename" > "$temp_dir/deb.griffo.io.list"
+    "$codename" >"$temp_dir/deb.griffo.io.list"
   sudo install -m 0644 "$temp_dir/deb.griffo.io.list" /etc/apt/sources.list.d/deb.griffo.io.list
 }
 
@@ -175,8 +175,8 @@ install_packages() {
   while IFS= read -r package || [[ -n "$package" ]]; do
     [[ "$package" =~ ^[[:space:]]*(#|$) ]] && continue
     packages+=("$package")
-  done < packages.txt
-  if (( ${#packages[@]} == 0 )); then
+  done <packages.txt
+  if ((${#packages[@]} == 0)); then
     printf 'packages.txt enthält keine Pakete.\n'
     return
   fi
@@ -232,6 +232,28 @@ set_zsh_as_login_shell() {
   fi
 }
 
+install_fnm() {
+  # Der feste Zielpfad passt zur fnm-Einbindung in zsh/.zshrc.d/all.zsh.
+  local fnm_dir="$HOME/.local/share/fnm"
+  # Nach einer Installation ist fnm in dieser Sitzung eventuell noch nicht im
+  # PATH. Deshalb zusätzlich die Programmdatei im Zielverzeichnis prüfen.
+  if command -v fnm >/dev/null || [[ -x "$fnm_dir/fnm" ]]; then
+    printf 'fnm ist bereits installiert; übersprungen.\n'
+    return
+  fi
+  if ! ensure_tools curl unzip; then return; fi
+  prepare_downloads
+
+  # Erst vollständig herunterladen, dann ausführen. Bei einem Downloadfehler
+  # stoppt set -e den Ablauf, bevor ein unvollständiges Script gestartet wird.
+  curl -fsSL https://fnm.vercel.app/install -o "$temp_dir/fnm-install.sh"
+  # --skip-shell verhindert Änderungen an .bashrc/.zshrc: Die Initialisierung
+  # steht schon in unseren Dotfiles und wird durch den Stow-Schritt eingebunden.
+  # --install-dir überschreibt auch einen eventuell abweichenden XDG-Standard.
+  bash "$temp_dir/fnm-install.sh" --skip-shell --install-dir "$fnm_dir"
+  "$fnm_dir/fnm" --version
+}
+
 install_zap() {
   local zap_dir=${XDG_DATA_HOME:-$HOME/.local/share}/zap
   if [[ -e "$zap_dir" || -L "$zap_dir" ]]; then
@@ -256,7 +278,7 @@ stow_dotfiles() {
     # %/ entfernt den abschließenden Slash aus dem Paketnamen.
     stow_packages+=("${package_dir%/}")
   done
-  if (( ${#stow_packages[@]} == 0 )); then
+  if ((${#stow_packages[@]} == 0)); then
     printf 'Keine Stow-Pakete gefunden.\n'
     return
   fi
@@ -305,6 +327,10 @@ fi
 install_packages
 
 set_zsh_as_login_shell
+
+if confirm 'fnm installieren?'; then
+  install_fnm
+fi
 
 if confirm 'Zap für Zsh installieren (bestehende .zshrc behalten)?'; then
   install_zap
