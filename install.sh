@@ -254,6 +254,55 @@ install_fnm() {
   "$fnm_dir/fnm" --version
 }
 
+prepare_pnpm_environment() {
+  # Derselbe Pfad steht in zsh/.zshrc.d/all.zsh. export gibt die Werte an
+  # Unterprozesse weiter; die aufrufende Terminal-Sitzung wird nicht verändert.
+  export PNPM_HOME="$HOME/.local/share/pnpm"
+  # Ab pnpm 11 liegen die Programme unter bin/, ältere Versionen direkt im Home.
+  # So sind pnpm und globale Programme schon in diesem Script erreichbar.
+  export PATH="$PNPM_HOME/bin:$PNPM_HOME:$PATH"
+}
+
+install_pnpm() {
+  prepare_pnpm_environment
+  if command -v pnpm >/dev/null; then
+    printf 'pnpm ist bereits installiert; übersprungen.\n'
+    return
+  fi
+  if ! ensure_tools curl tar gzip openssl; then return; fi
+  prepare_downloads
+  curl -fsSL https://get.pnpm.io/install.sh -o "$temp_dir/pnpm-install.sh"
+
+  # Der offizielle Installer ruft pnpm setup auf und schreibt dabei Shell-Code.
+  # Für sh bestimmt ENV die Zieldatei: Wir verwenden eine temporäre Datei, da
+  # unsere Dotfiles PNPM_HOME und PATH bereits setzen. Nichts davon wird geladen.
+  # env -u entfernt nur für diesen Aufruf Variablen, die die Shell-Erkennung
+  # sonst auf Bash, Zsh, Fish oder Nushell umleiten könnten.
+  env -u BASH_VERSION -u ZSH_VERSION -u FISH_VERSION -u NU_VERSION \
+    SHELL=/bin/sh ENV="$temp_dir/pnpm-shellrc" sh "$temp_dir/pnpm-install.sh"
+  pnpm --version
+}
+
+install_codex() {
+  prepare_pnpm_environment
+  if command -v codex >/dev/null; then
+    printf 'Codex CLI ist bereits installiert; übersprungen.\n'
+    return
+  fi
+  if ! command -v pnpm >/dev/null; then
+    printf 'pnpm fehlt; Codex-Installation übersprungen. Bitte zuerst pnpm installieren.\n' >&2
+    return
+  fi
+
+  # --global installiert für den Benutzer statt in das Dotfiles-Projekt.
+  # Kein sudo: pnpm verwaltet die Installation unter PNPM_HOME.
+  pnpm add --global @openai/codex
+  # Den tatsächlichen globalen Bin-Pfad abfragen, statt ein Layout anzunehmen.
+  local global_bin
+  global_bin=$(pnpm bin --global)
+  "$global_bin/codex" --version
+}
+
 install_zap() {
   local zap_dir=${XDG_DATA_HOME:-$HOME/.local/share}/zap
   if [[ -e "$zap_dir" || -L "$zap_dir" ]]; then
@@ -330,6 +379,14 @@ set_zsh_as_login_shell
 
 if confirm 'fnm installieren?'; then
   install_fnm
+fi
+
+if confirm 'pnpm installieren?'; then
+  install_pnpm
+fi
+
+if confirm 'Codex CLI (@openai/codex) global mit pnpm installieren?'; then
+  install_codex
 fi
 
 if confirm 'Zap für Zsh installieren (bestehende .zshrc behalten)?'; then
