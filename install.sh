@@ -404,6 +404,59 @@ stow_dotfiles() {
     --stow -- "${stow_packages[@]}"
 }
 
+finish_installation() {
+  local action session_id
+  printf '\nZum Übernehmen der Login-Einstellungen kannst du dich neu anmelden.\n'
+  printf 'Vor dem Abmelden oder Neustarten offene Arbeit speichern.\n'
+  printf '  0) Angemeldet bleiben (Standard)\n'
+  printf '  1) Jetzt abmelden (aktuelle Sitzung beenden)\n'
+  printf '  2) Rechner jetzt neu starten\n'
+
+  while true; do
+    printf 'Auswahl [0/1/2, Enter = 0]: '
+    # Auch EOF (z.B. Strg+D) lässt die Sitzung bestehen.
+    if ! IFS= read -r action; then
+      printf '\nKeine Abschlussaktion ausgeführt.\n'
+      return
+    fi
+    case "$action" in
+    0 | '')
+      printf 'Du bleibst angemeldet.\n'
+      return
+      ;;
+    1)
+      if ! command -v loginctl >/dev/null; then
+        printf 'loginctl fehlt; bitte manuell abmelden.\n' >&2
+        return 1
+      fi
+      # XDG_SESSION_ID bezeichnet die Sitzung des Terminals. Ohne diese
+      # Variable fragt self die Sitzung des aufrufenden Prozesses ab.
+      # Wir beenden gezielt diese Sitzung, nicht alle Sitzungen des Benutzers.
+      if ! session_id=$(loginctl show-session "${XDG_SESSION_ID:-self}" --property=Id --value) ||
+        [[ -z "$session_id" ]]; then
+        printf 'Aktuelle Sitzung nicht ermittelbar; bitte manuell abmelden.\n' >&2
+        return 1
+      fi
+      printf 'Sitzung %s wird beendet.\n' "$session_id"
+      loginctl terminate-session "$session_id"
+      return
+      ;;
+    2)
+      if ! command -v systemctl >/dev/null; then
+        printf 'systemctl fehlt; bitte manuell neu starten.\n' >&2
+        return 1
+      fi
+      # Regulärer Neustart ohne --force; systemd prüft Berechtigungen und
+      # kann eine Authentifizierung verlangen. Das betrifft den ganzen Rechner.
+      printf 'Neustart wird angefordert.\n'
+      systemctl reboot
+      return
+      ;;
+    *) printf 'Bitte 0, 1 oder 2 eingeben.\n' ;;
+    esac
+  done
+}
+
 # Der Hauptablauf liest sich wie eine Checkliste. Funktionen werden hier normal
 # aufgerufen (nicht als if-Test), damit Fehler den Ablauf mit set -e stoppen.
 printf 'Dotfiles-Installation: Jeder Schritt ist optional. Enter bedeutet Nein.\n'
@@ -441,3 +494,4 @@ fi
 stow_dotfiles
 
 printf '\nAusgewählte Schritte abgeschlossen.\n'
+finish_installation
