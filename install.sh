@@ -42,18 +42,18 @@ confirm() {
   # local begrenzt die Variable auf diese Funktion. $1 ist ihr erstes Argument.
   local answer
   while true; do
-    printf '\n%s [j/N] ' "$1"
+    printf '\n%s [J/n] ' "$1"
     # -r liest Backslashes unverändert; IFS= erhält die Eingabe unverändert.
     # Ein geschlossenes Eingabegerät (EOF) beendet das Script kontrolliert.
     if ! IFS= read -r answer; then
       printf '\nEingabe beendet; Installation abgebrochen.\n' >&2
       exit 1
     fi
-    # ${answer,,} wandelt in Kleinbuchstaben um; Enter bedeutet Nein.
+    # ${answer,,} wandelt in Kleinbuchstaben um; Enter bedeutet Ja.
     case "${answer,,}" in
-    j | ja | y | yes) return 0 ;;
-    n | nein | no | '') return 1 ;;
-    *) printf 'Bitte j oder n eingeben. Enter überspringt den Schritt.\n' ;;
+    j | ja | y | yes | '') return 0 ;;
+    n | nein | no) return 1 ;;
+    *) printf 'Bitte j oder n eingeben. Enter bestätigt den Schritt.\n' ;;
     esac
   done
 }
@@ -78,8 +78,8 @@ ensure_tools() {
   fi
 
   printf 'Für diesen Schritt fehlen: %s\n' "${missing[*]}"
-  if ! confirm 'Diese Voraussetzungen zuerst über APT installieren?'; then
-    printf 'Schritt wegen fehlender Voraussetzungen übersprungen.\n'
+  if ! confirm 'Diese Abhängigkeiten zuerst über apt installieren?'; then
+    printf 'Schritt wegen fehlender Abhängigkeiten übersprungen.\n'
     return 1
   fi
   # Diese Funktion wird in einer if-Bedingung aufgerufen. Dort greift Bashs
@@ -166,7 +166,7 @@ add_griffo_repo() {
   source /etc/os-release
   codename=${UBUNTU_CODENAME:-${VERSION_CODENAME:-}}
   if [[ -z "$codename" ]]; then
-    printf 'Kein Distributions-Codename gefunden; Griffo übersprungen.\n' >&2
+    printf 'Kein Distro-Codename gefunden; Griffo übersprungen.\n' >&2
     return
   fi
   prepare_downloads
@@ -213,7 +213,7 @@ install_packages() {
 set_zsh_as_login_shell() {
   local zsh_path username passwd_entry current_shell
   if ! zsh_path=$(command -v zsh); then
-    printf '\nZsh ist nicht installiert; Änderung der Login-Shell übersprungen.\n'
+    printf '\nzsh ist nicht installiert; Änderung der Login-Shell übersprungen.\n'
     return
   fi
 
@@ -226,11 +226,11 @@ set_zsh_as_login_shell() {
   # -ef erkennt auch /bin/zsh und /usr/bin/zsh als gleich, wenn sie auf dieselbe
   # Datei zeigen. Dann ist keine erneute Änderung nötig.
   if [[ "$current_shell" -ef "$zsh_path" ]]; then
-    printf '\nZsh ist bereits die Login-Shell für %s.\n' "$username"
+    printf '\nzsh ist bereits die Login-Shell für %s.\n' "$username"
     return
   fi
   if ! command -v chsh >/dev/null; then
-    printf '\nchsh fehlt (Paket passwd); Änderung der Login-Shell übersprungen.\n' >&2
+    printf '\nchsh fehlt. Änderung der Login-Shell übersprungen.\n' >&2
     return
   fi
   # chsh erlaubt normalen Benutzern nur Shells aus /etc/shells.
@@ -241,7 +241,7 @@ set_zsh_as_login_shell() {
   fi
 
   printf '\nLogin-Shell für %s: %s → %s\n' "$username" "$current_shell" "$zsh_path"
-  if confirm 'Zsh als Standard-Shell für diesen Benutzer eintragen?'; then
+  if confirm 'zsh als Standard-Shell für diesen Benutzer eintragen?'; then
     # Ohne sudo: chsh ändert nur dein Konto und kann dein Passwort abfragen.
     chsh --shell "$zsh_path" "$username"
     passwd_entry=$(getent passwd "$username")
@@ -249,7 +249,7 @@ set_zsh_as_login_shell() {
       printf 'Die neue Login-Shell konnte nicht bestätigt werden.\n' >&2
       exit 1
     fi
-    printf 'Zsh ist eingetragen. Die Änderung gilt nach vollständigem Ab- und Anmelden.\n'
+    printf 'zsh ist eingetragen. Die Änderung gilt nach vollständigem Ab- und Anmelden.\n'
   fi
 }
 
@@ -381,7 +381,7 @@ install_codex() {
 install_zap() {
   local zap_dir=${XDG_DATA_HOME:-$HOME/.local/share}/zap
   if [[ -e "$zap_dir" || -L "$zap_dir" ]]; then
-    printf 'Zap-Pfad existiert bereits: %s; übersprungen.\n' "$zap_dir"
+    printf 'zap-Pfad existiert bereits: %s; übersprungen.\n' "$zap_dir"
     return
   fi
   if ! ensure_tools git zsh; then return; fi
@@ -435,11 +435,11 @@ stow_dotfiles() {
 }
 
 finish_installation() {
-  if ! confirm 'Jetzt mit exec zsh eine Zsh mit den neuen Einstellungen starten?'; then
+  if ! confirm 'Jetzt mit exec zsh eine zsh mit den neuen Einstellungen starten?'; then
     return
   fi
   if ! command -v zsh >/dev/null; then
-    printf 'Zsh ist nicht installiert; Shell-Start übersprungen.\n' >&2
+    printf 'zsh ist nicht installiert; Shell-Start übersprungen.\n' >&2
     return
   fi
 
@@ -454,14 +454,12 @@ finish_installation() {
 
 # Der Hauptablauf liest sich wie eine Checkliste. Funktionen werden hier normal
 # aufgerufen (nicht als if-Test), damit Fehler den Ablauf mit set -e stoppen.
-printf 'Dotfiles-Installation: Jeder Schritt ist optional. Enter bedeutet Nein.\n'
+printf 'Dotfiles-Installation: Jeder Schritt ist optional. Enter bedeutet Ja; n überspringt.\n'
 
 if confirm 'GitHub-CLI-Repository hinzufügen?'; then
   add_github_repo
 fi
 
-printf '\nGriffo: Laut Anbieter benötigen Paketdownloads ab 01.10.2026 ein Abo.\n'
-printf 'Details: https://deb.griffo.io/\n'
 if confirm 'Griffo-Repository (deb.griffo.io) hinzufügen?'; then
   add_griffo_repo
 fi
@@ -482,7 +480,7 @@ if confirm 'Codex CLI (@openai/codex) global mit pnpm installieren?'; then
   install_codex
 fi
 
-if confirm 'Zap für Zsh installieren (bestehende .zshrc behalten)?'; then
+if confirm 'zap für Zsh installieren (bestehende .zshrc behalten)?'; then
   install_zap
 fi
 

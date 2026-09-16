@@ -14,7 +14,7 @@ git clone https://github.com/never-rain/dotfiles.git "$HOME/dotfiles"
 cd "$HOME/dotfiles"
 ```
 
-Run `bash install.sh` as your normal user. The script asks about each step separately; press Enter to skip, or answer `j`/`ja` (also `y`/`yes`) to proceed:
+Run `bash install.sh` as your normal user. The script asks about each step separately; press Enter or answer `j`/`ja` (also `y`/`yes`) to proceed, or answer `n`/`nein` (also `no`) to skip:
 
 1. Add the GitHub CLI APT repository.
 2. Add the Griffo APT repository.
@@ -25,7 +25,7 @@ Run `bash install.sh` as your normal user. The script asks about each step separ
 7. Install [Codex CLI](https://learn.chatgpt.com/docs/codex/cli) with `pnpm add --global @openai/codex`, without `sudo`. pnpm is available immediately after step 6; no new terminal is needed. Before installing or checking Codex, the script ensures Node.js runs: it uses an existing Node or activates fnm's default version in the running Bash process. If no default is usable, it offers to install Node LTS with fnm and make it the default for future terminals. Declining, missing fnm when Node is unavailable, or missing pnpm skips the Codex step. An existing `codex` command is checked with `--version` rather than reinstalled. Sign in separately when you first run `codex`.
 8. Install Zap for Zsh by cloning its `release-v1` branch into `${XDG_DATA_HOME:-$HOME/.local/share}/zap`. An existing Zap directory is skipped. This does not modify or source `.zshrc`, so installation also works before Stow has linked your shell configuration.
 9. Link all Stow packages into your home directory. The script lists the packages and target before asking for confirmation, then checks for conflicts with a simulation before creating links.
-10. Optionally start Zsh with `exec zsh` to load the shell settings in the current terminal. Enter skips this step. Temporary downloads are cleaned up before replacing the installer process. This does not log you out or restart the desktop session. When launched with `bash install.sh`, exiting the new Zsh returns to the shell that started the installer.
+10. Optionally start Zsh with `exec zsh` to load the shell settings in the current terminal. Enter confirms this step; `n` skips it. Temporary downloads are cleaned up before replacing the installer process. This does not log you out or restart the desktop session. When launched with `bash install.sh`, exiting the new Zsh returns to the shell that started the installer.
 
 Missing prerequisites are offered as a separate, confirmed APT installation before the step that needs them. Declining skips that step. APT may also ask for confirmation. Errors stop the script, including failed index downloads from temporarily unavailable APT sources; completed changes are not rolled back.
 
