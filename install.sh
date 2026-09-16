@@ -23,7 +23,14 @@ fi
 # Temporäre Downloads werden auch bei einem Fehler wieder entfernt.
 # Das Verzeichnis wird erst angelegt, wenn tatsächlich ein Download nötig ist.
 temp_dir=''
-trap 'if [[ -n "$temp_dir" ]]; then rm -rf -- "$temp_dir"; fi' EXIT
+
+cleanup_downloads() {
+  if [[ -n "$temp_dir" ]]; then
+    rm -rf -- "$temp_dir"
+    temp_dir=''
+  fi
+}
+trap cleanup_downloads EXIT
 
 prepare_downloads() {
   if [[ -z "$temp_dir" ]]; then
@@ -61,7 +68,7 @@ ensure_tools() {
       missing+=("$tool")
     fi
   done
-  # HTTPS-Downloads benötigen außerdem die vertrauenswürdigen CA-Zertifikate.
+  # HTTPS-Downloads benötigen ausserdem die vertrauenswürdigen CA-Zertifikate.
   if [[ " $* " == *' curl '* ]] &&
     [[ $(dpkg-query -W -f='${Status}' ca-certificates 2>/dev/null || true) != 'install ok installed' ]]; then
     missing+=(ca-certificates)
@@ -77,7 +84,8 @@ ensure_tools() {
   fi
   # Diese Funktion wird in einer if-Bedingung aufgerufen. Dort greift Bashs
   # set -e nicht wie sonst: Deshalb behandeln wir Fehler hier ausdrücklich.
-  sudo apt-get update || exit 1
+  # Auch vorübergehend unerreichbare Quellen sollen den Ablauf stoppen.
+  sudo apt-get update --error-on=any || exit 1
   sudo apt-get install -- "${missing[@]}" || exit 1
 }
 
@@ -87,20 +95,29 @@ repo_exists() {
   for source_file in /etc/apt/sources.list /etc/apt/sources.list.d/*.list /etc/apt/sources.list.d/*.sources; do
     [[ -f "$source_file" ]] || continue
     if [[ "$source_file" == *.sources ]]; then
-      # Deb822 besteht aus Absätzen (RS=""). Deaktivierte Absätze zählen nicht.
+      # Deb822 trennt Einträge durch Leerzeilen. Eingerückte Zeilen setzen das
+      # vorherige Feld fort; Feldnamen sind unabhängig von Gross-/Kleinschreibung.
       if awk -v pattern="$pattern" '
-        BEGIN { RS=""; FS="\n" }
-        {
-          enabled=1; binary=0; found=0
-          for (i=1; i<=NF; i++) {
-            if ($i ~ /^[[:space:]]*#/) continue
-            if (tolower($i) ~ /^enabled:[[:space:]]*no[[:space:]]*$/) enabled=0
-            if ($i ~ /^Types:/ && $i ~ /[[:space:]]deb([[:space:]]|$)/) binary=1
-            if ($i ~ /^URIs:/ && $i ~ pattern) found=1
-          }
-          if (enabled && binary && found) matched=1
+        function check_stanza(    key) {
+          if (tolower(fields["enabled"]) !~ /^[[:space:]]*no[[:space:]]*$/ &&
+              fields["types"] ~ /(^|[[:space:]])deb([[:space:]]|$)/ &&
+              fields["uris"] ~ pattern) matched=1
+          for (key in fields) delete fields[key]
+          field=""
         }
-        END { exit !matched }
+        { sub(/\r$/, "") }
+        /^[[:space:]]*#/ { next }
+        /^[[:space:]]*$/ { check_stanza(); next }
+        /^[[:space:]]/ {
+          if (field != "") fields[field]=fields[field] " " $0
+          next
+        }
+        {
+          separator=index($0, ":")
+          field=separator ? tolower(substr($0, 1, separator-1)) : ""
+          if (field != "") fields[field]=substr($0, separator+1)
+        }
+        END { check_stanza(); exit !matched }
       ' "$source_file"; then
         return 0
       fi
@@ -173,7 +190,11 @@ install_packages() {
   # Zeilen einzeln lesen, Kommentare und Leerzeilen auslassen. Das Array erhält
   # jeden Paketnamen als separates Argument. Auch die letzte Zeile ohne \n zählt.
   while IFS= read -r package || [[ -n "$package" ]]; do
-    [[ "$package" =~ ^[[:space:]]*(#|$) ]] && continue
+    # # und % entfernen passende Muster am Anfang bzw. Ende. So verschwinden
+    # äussere Leerzeichen, Tabs und das zusätzliche CR von Windows-Zeilenenden.
+    package=${package#"${package%%[![:space:]]*}"}
+    package=${package%"${package##*[![:space:]]}"}
+    [[ "$package" == \#* || -z "$package" ]] && continue
     packages+=("$package")
   done <packages.txt
   if ((${#packages[@]} == 0)); then
@@ -183,7 +204,7 @@ install_packages() {
   printf '\nPakete aus packages.txt:\n'
   printf '  %s\n' "${packages[@]}"
   if confirm 'Paketlisten aktualisieren und diese Pakete installieren?'; then
-    sudo apt-get update
+    sudo apt-get update --error-on=any
     # Ohne -y: APT zeigt seinen Installationsplan und fragt gegebenenfalls nach.
     sudo apt-get install -- "${packages[@]}"
   fi
@@ -255,12 +276,21 @@ install_fnm() {
 }
 
 prepare_pnpm_environment() {
+  local pnpm_path
   # Derselbe Pfad steht in zsh/.zshrc.d/all.zsh. export gibt die Werte an
   # Unterprozesse weiter; die aufrufende Terminal-Sitzung wird nicht verändert.
   export PNPM_HOME="$HOME/.local/share/pnpm"
   # Ab pnpm 11 liegen die Programme unter bin/, ältere Versionen direkt im Home.
   # So sind pnpm und globale Programme schon in diesem Script erreichbar.
-  export PATH="$PNPM_HOME/bin:$PNPM_HOME:$PATH"
+  # Die Doppelpunkte begrenzen ganze PATH-Einträge. Wiederholte Aufrufe fügen
+  # dieselben Verzeichnisse dadurch nicht erneut hinzu.
+  for pnpm_path in "$PNPM_HOME" "$PNPM_HOME/bin"; do
+    case ":$PATH:" in
+    *":$pnpm_path:"*) ;;
+    *) PATH="$pnpm_path:$PATH" ;;
+    esac
+  done
+  export PATH
 }
 
 install_pnpm() {
@@ -366,10 +396,10 @@ stow_dotfiles() {
   local package_dir
   local -a stow_packages=()
   # In diesem Repository ist jedes sichtbare Unterverzeichnis ein Stow-Paket.
-  # */ findet nur Verzeichnisse; versteckte Ordner wie .git bleiben außen vor.
+  # */ findet nur Verzeichnisse; versteckte Ordner wie .git bleiben aussen vor.
   for package_dir in */; do
     [[ -d "$package_dir" ]] || continue
-    # %/ entfernt den abschließenden Slash aus dem Paketnamen.
+    # %/ entfernt den abschliessenden Slash aus dem Paketnamen.
     stow_packages+=("${package_dir%/}")
   done
   if ((${#stow_packages[@]} == 0)); then
@@ -386,7 +416,7 @@ stow_dotfiles() {
 
   # --dir ist das Repository, --target immer das Home-Verzeichnis. Dadurch
   # funktioniert Stow auch, wenn der Checkout z.B. unter ~/Downloads liegt.
-  # Stow verlinkt standardmäßig nach Möglichkeit ganze Verzeichnisse.
+  # Stow verlinkt standardmässig nach Möglichkeit ganze Verzeichnisse.
   # Alle Pakete gemeinsam prüfen: Auch Konflikte zwischen Paketen werden erkannt.
   # --simulate zeigt den Plan, ohne etwas zu ändern; --verbose erklärt die Links.
   if ! stow --dir="$PWD" --target="$HOME" --simulate --verbose \
@@ -415,10 +445,7 @@ finish_installation() {
 
   # Bei erfolgreichem exec läuft der EXIT-Trap nicht. Deshalb temporäre
   # Downloads vor dem Prozesswechsel entfernen und den Pfad zurücksetzen.
-  if [[ -n "$temp_dir" ]]; then
-    rm -rf -- "$temp_dir"
-    temp_dir=''
-  fi
+  cleanup_downloads
   # exec ersetzt den Bash-Prozess dieses Scripts durch Zsh. Im interaktiven
   # Terminal liest Zsh die .zshrc neu. Die grafische Sitzung bleibt bestehen.
   # Bei Start mit bash install.sh führt exit später zur aufrufenden Shell zurück.
