@@ -64,7 +64,7 @@ let g:airline#extensions#tabline#formatter = 'unique_tail'
 let g:airline#extensions#branch#enabled = 1
 let g:airline#extensions#whitespace#enabled = 1
 
-let g:airline_theme = 'catppuccin_frappe'
+let g:airline_theme = 'catppuccin_mocha'
 let g:airline_powerline_fonts = 1
 
 augroup prettier_format
