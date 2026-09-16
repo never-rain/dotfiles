@@ -405,56 +405,24 @@ stow_dotfiles() {
 }
 
 finish_installation() {
-  local action session_id
-  printf '\nZum Übernehmen der Login-Einstellungen kannst du dich neu anmelden.\n'
-  printf 'Vor dem Abmelden oder Neustarten offene Arbeit speichern.\n'
-  printf '  0) Angemeldet bleiben (Standard)\n'
-  printf '  1) Jetzt abmelden (aktuelle Sitzung beenden)\n'
-  printf '  2) Rechner jetzt neu starten\n'
+  if ! confirm 'Jetzt mit exec zsh eine Zsh mit den neuen Einstellungen starten?'; then
+    return
+  fi
+  if ! command -v zsh >/dev/null; then
+    printf 'Zsh ist nicht installiert; Shell-Start übersprungen.\n' >&2
+    return
+  fi
 
-  while true; do
-    printf 'Auswahl [0/1/2, Enter = 0]: '
-    # Auch EOF (z.B. Strg+D) lässt die Sitzung bestehen.
-    if ! IFS= read -r action; then
-      printf '\nKeine Abschlussaktion ausgeführt.\n'
-      return
-    fi
-    case "$action" in
-    0 | '')
-      printf 'Du bleibst angemeldet.\n'
-      return
-      ;;
-    1)
-      if ! command -v loginctl >/dev/null; then
-        printf 'loginctl fehlt; bitte manuell abmelden.\n' >&2
-        return 1
-      fi
-      # XDG_SESSION_ID bezeichnet die Sitzung des Terminals. Ohne diese
-      # Variable fragt self die Sitzung des aufrufenden Prozesses ab.
-      # Wir beenden gezielt diese Sitzung, nicht alle Sitzungen des Benutzers.
-      if ! session_id=$(loginctl show-session "${XDG_SESSION_ID:-self}" --property=Id --value) ||
-        [[ -z "$session_id" ]]; then
-        printf 'Aktuelle Sitzung nicht ermittelbar; bitte manuell abmelden.\n' >&2
-        return 1
-      fi
-      printf 'Sitzung %s wird beendet.\n' "$session_id"
-      loginctl terminate-session "$session_id"
-      return
-      ;;
-    2)
-      if ! command -v systemctl >/dev/null; then
-        printf 'systemctl fehlt; bitte manuell neu starten.\n' >&2
-        return 1
-      fi
-      # Regulärer Neustart ohne --force; systemd prüft Berechtigungen und
-      # kann eine Authentifizierung verlangen. Das betrifft den ganzen Rechner.
-      printf 'Neustart wird angefordert.\n'
-      systemctl reboot
-      return
-      ;;
-    *) printf 'Bitte 0, 1 oder 2 eingeben.\n' ;;
-    esac
-  done
+  # Bei erfolgreichem exec läuft der EXIT-Trap nicht. Deshalb temporäre
+  # Downloads vor dem Prozesswechsel entfernen und den Pfad zurücksetzen.
+  if [[ -n "$temp_dir" ]]; then
+    rm -rf -- "$temp_dir"
+    temp_dir=''
+  fi
+  # exec ersetzt den Bash-Prozess dieses Scripts durch Zsh. Im interaktiven
+  # Terminal liest Zsh die .zshrc neu. Die grafische Sitzung bleibt bestehen.
+  # Bei Start mit bash install.sh führt exit später zur aufrufenden Shell zurück.
+  exec zsh
 }
 
 # Der Hauptablauf liest sich wie eine Checkliste. Funktionen werden hier normal
