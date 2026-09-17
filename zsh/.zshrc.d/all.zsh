@@ -74,6 +74,7 @@ alias sjrnl="sudo journalctl"
 alias aud="sudo apt update"
 alias aug="sudo apt upgrade"
 alias as="apt search --names-only"
+alias ai="sudo apt install"
 
 # Useful Docker aliases
 alias d="docker"
