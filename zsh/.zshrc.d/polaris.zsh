@@ -1,2 +1,4 @@
-export VISUAL="code --wait"
-export EDITOR="code --wait"
+export VISUAL="nvim"
+export EDITOR="nvim"
+
+export GPG_TTY=$(tty)
