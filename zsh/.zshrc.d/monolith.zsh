@@ -7,6 +7,7 @@ unalias lg
 unalias w
 unalias wee
 unalias co
-unalias as
-unalias aug
-unalias aud
+unalias apu
+unalias apg
+unalias aps
+unalias api
