@@ -34,7 +34,9 @@ trap cleanup_downloads EXIT
 
 prepare_downloads() {
   if [[ -z "$temp_dir" ]]; then
-    temp_dir=$(mktemp -d)
+    # Der feste /tmp-Pfad verhindert, dass ein TMPDIR im Checkout temporäre
+    # Zugangsdaten ins Git-Verzeichnis lenkt. mktemp vergibt die Rechte 0700.
+    temp_dir=$(mktemp -d /tmp/dotfiles-install.XXXXXXXXXX)
   fi
 }
 
@@ -153,14 +155,94 @@ add_github_repo() {
   sudo install -m 0644 "$temp_dir/github-cli.list" /etc/apt/sources.list.d/github-cli.list
 }
 
+configure_griffo_auth() (
+  # Runde Klammern starten eine Subshell: Variablen und umask gelten nur hier.
+  # Auch bei bash -x dürfen Zugangsdaten nicht im Debug-Protokoll erscheinen.
+  set +x
+  umask 077
+  local auth_file=/etc/apt/auth.conf.d/deb.griffo.io.conf
+  local griffo_username griffo_password
+
+  if sudo test -s "$auth_file"; then
+    if confirm 'Vorhandene Griffo-Zugangsdaten beibehalten?'; then
+      sudo chown root:root "$auth_file"
+      sudo chmod 0600 "$auth_file"
+      return
+    fi
+  fi
+
+  # APT trennt Felder durch Leerzeichen. Anführungszeichen und Backslashes
+  # wären ebenfalls Formatzeichen; solche Eingaben nicht still verfälschen.
+  while true; do
+    printf 'Griffo-Benutzername: '
+    if ! IFS= read -r griffo_username; then
+      printf '\nEingabe beendet; Installation abgebrochen.\n' >&2
+      exit 1
+    fi
+    if [[ -n "$griffo_username" && "$griffo_username" != *[[:space:]\"\\]* ]]; then
+      break
+    fi
+    printf 'Bitte einen nicht leeren Benutzernamen ohne Leerraum, " oder Backslash eingeben.\n'
+  done
+  while true; do
+    printf 'Griffo-Passwort (Eingabe unsichtbar): '
+    # -s unterdrückt die Anzeige, -r liest Backslashes unverändert.
+    if ! IFS= read -r -s griffo_password; then
+      printf '\nEingabe beendet; Installation abgebrochen.\n' >&2
+      exit 1
+    fi
+    printf '\n'
+    if [[ -n "$griffo_password" && "$griffo_password" != *[[:space:]\"\\]* ]]; then
+      break
+    fi
+    printf 'Bitte ein nicht leeres Passwort ohne Leerraum, " oder Backslash eingeben.\n'
+  done
+
+  # Das private mktemp-Verzeichnis liegt ausserhalb des Checkouts. printf ist
+  # ein Bash-Builtin: Die Werte werden nicht als externe Prozessargumente sichtbar.
+  printf 'machine deb.griffo.io\nlogin %s\npassword %s\n' \
+    "$griffo_username" "$griffo_password" >"$temp_dir/griffo-auth.conf"
+  sudo install -d -m 0755 /etc/apt/auth.conf.d
+  sudo install -o root -g root -m 0600 "$temp_dir/griffo-auth.conf" "$auth_file"
+  rm -f -- "$temp_dir/griffo-auth.conf"
+  printf 'Griffo-Zugangsdaten für APT gespeichert (nur root lesbar).\n'
+)
+
+migrate_griffo_sources() {
+  local griffo_host=$1 source_file
+  for source_file in /etc/apt/sources.list /etc/apt/sources.list.d/*.list /etc/apt/sources.list.d/*.sources; do
+    [[ -f "$source_file" ]] || continue
+    # Nur bekannte Griffo-URLs ersetzen. Suite, Signed-By und fremde Quellen
+    # bleiben erhalten, auch bei gemischten Dateien und mehrzeiligen Deb822-Feldern.
+    sed -E "s#https?://(debian|deb-free|deb)\.griffo\.io/apt([/[:space:]]|$)#https://$griffo_host/apt\2#g" \
+      "$source_file" >"$temp_dir/griffo-source"
+    if cmp -s "$source_file" "$temp_dir/griffo-source"; then continue; fi
+    printf 'Griffo-Quelle umstellen: %s\n' "$source_file"
+    # Die erste Sicherung behalten. APT liest die Endung .griffo-backup nicht.
+    if ! sudo test -e "$source_file.griffo-backup"; then
+      sudo cp -p -- "$source_file" "$source_file.griffo-backup"
+    fi
+    sudo install -o root -g root -m 0644 "$temp_dir/griffo-source" "$source_file"
+  done
+}
+
 add_griffo_repo() {
-  # Auch den früheren Hostnamen erkennen, damit kein zweiter Eintrag entsteht.
-  if repo_exists 'https?://(deb|debian)[.]griffo[.]io/apt([/[:space:]]|$)'; then
-    printf 'Griffo-Repository bereits eingetragen; übersprungen.\n'
+  local griffo_host=deb-free.griffo.io codename
+  prepare_downloads
+  # Zugangsdaten vor jedem möglichen APT-Aufruf einrichten, auch wenn das
+  # Repository schon existiert oder Abhängigkeiten nachinstalliert werden müssen.
+  if confirm 'Griffo-Zugangsdaten vorhanden (kostenpflichtiges Repository verwenden)?'; then
+    griffo_host=deb.griffo.io
+    configure_griffo_auth
+  else
+    printf 'Öffentliches Griffo-Repository gewählt; es enthält weniger Pakete.\n'
+  fi
+  migrate_griffo_sources "$griffo_host"
+  if repo_exists "https://${griffo_host//./[.]}/apt([/[:space:]]|$)"; then
+    printf 'Gewähltes Griffo-Repository bereits eingetragen: %s\n' "$griffo_host"
     return
   fi
   if ! ensure_tools curl gpg; then return; fi
-  local codename
   # os-release liefert den Distributions-Codenamen ohne zusätzliches lsb-release.
   # shellcheck source=/etc/os-release
   source /etc/os-release
@@ -171,16 +253,17 @@ add_griffo_repo() {
   fi
   prepare_downloads
 
-  # Anleitung: https://deb.griffo.io/
-  curl -fsSL https://deb.griffo.io/EA0F721D231FDD3A0A17B9AC7808B4DD62C41256.asc \
+  # Beide Griffo-Repositories verwenden denselben Signaturschlüssel. Deshalb
+  # bleibt beim Wechsel auch ein vorhandener Signed-By-Pfad gültig.
+  curl -fsSL "https://$griffo_host/EA0F721D231FDD3A0A17B9AC7808B4DD62C41256.asc" \
     -o "$temp_dir/griffo.asc"
   # --dearmor wandelt den textuellen Schlüssel in einen binären Keyring um.
   gpg --batch --yes --dearmor -o "$temp_dir/griffo.gpg" "$temp_dir/griffo.asc"
   sudo install -d -m 0755 /etc/apt/keyrings /etc/apt/sources.list.d
   sudo install -m 0644 "$temp_dir/griffo.gpg" /etc/apt/keyrings/deb.griffo.io.gpg
   # signed-by beschränkt diesen Schlüssel auf das zugehörige Repository.
-  printf 'deb [signed-by=/etc/apt/keyrings/deb.griffo.io.gpg] https://deb.griffo.io/apt %s main\n' \
-    "$codename" >"$temp_dir/deb.griffo.io.list"
+  printf 'deb [signed-by=/etc/apt/keyrings/deb.griffo.io.gpg] https://%s/apt %s main\n' \
+    "$griffo_host" "$codename" >"$temp_dir/deb.griffo.io.list"
   sudo install -m 0644 "$temp_dir/deb.griffo.io.list" /etc/apt/sources.list.d/deb.griffo.io.list
 }
 
@@ -460,7 +543,7 @@ if confirm 'GitHub-CLI-Repository hinzufügen?'; then
   add_github_repo
 fi
 
-if confirm 'Griffo-Repository (deb.griffo.io) hinzufügen?'; then
+if confirm 'Griffo-Repository einrichten (öffentlich oder mit Abo)?'; then
   add_griffo_repo
 fi
 
