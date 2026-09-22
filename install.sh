@@ -23,6 +23,8 @@ fi
 # Temporäre Downloads werden auch bei einem Fehler wieder entfernt.
 # Das Verzeichnis wird erst angelegt, wenn tatsächlich ein Download nötig ist.
 temp_dir=''
+# Global, damit die am Paket-Schritt übersprungenen Namen am Ende verfügbar sind.
+missing_packages=()
 
 cleanup_downloads() {
   if [[ -n "$temp_dir" ]]; then
@@ -268,8 +270,9 @@ add_griffo_repo() {
 }
 
 install_packages() {
-  local package
-  local -a packages=()
+  local package policy candidate
+  local -a packages=() available_packages=()
+  missing_packages=()
   # Zeilen einzeln lesen, Kommentare und Leerzeilen auslassen. Das Array erhält
   # jeden Paketnamen als separates Argument. Auch die letzte Zeile ohne \n zählt.
   while IFS= read -r package || [[ -n "$package" ]]; do
@@ -288,8 +291,41 @@ install_packages() {
   printf '  %s\n' "${packages[@]}"
   if confirm 'Paketlisten aktualisieren und diese Pakete installieren?'; then
     sudo apt-get update --error-on=any
-    # Ohne -y: APT zeigt seinen Installationsplan und fragt gegebenenfalls nach.
-    sudo apt-get install -- "${packages[@]}"
+    for package in "${packages[@]}"; do
+      # policy berücksichtigt die aktivierten Quellen und APT-Prioritäten.
+      # LC_ALL=C hält den Feldnamen Candidate unabhängig von der Systemsprache.
+      policy=$(LC_ALL=C apt-cache policy -- "$package")
+      candidate=$(awk '$1 == "Candidate:" { print $2; exit }' <<<"$policy")
+      if [[ -n "$candidate" && "$candidate" != '(none)' ]]; then
+        available_packages+=("$package")
+      elif [[ $(dpkg-query -W -f='${Status}' -- "$package" 2>/dev/null || true) != 'install ok installed' ]]; then
+        # Ein fehlender Kandidat soll die übrigen Pakete nicht blockieren.
+        # Bereits installierte Pakete gelten auch ohne Quelle nicht als fehlend.
+        missing_packages+=("$package")
+        printf 'Kein APT-Installationskandidat; übersprungen: %s\n' "$package"
+      fi
+    done
+    if ((${#available_packages[@]} > 0)); then
+      # Ohne -y: APT zeigt seinen Plan. Echte Installationsfehler brechen weiter
+      # ab; nur Pakete ohne Kandidat werden vor diesem Aufruf aussortiert.
+      sudo apt-get install -- "${available_packages[@]}"
+    fi
+  fi
+}
+
+report_missing_packages() {
+  local package
+  local -a still_missing=()
+  for package in "${missing_packages[@]}"; do
+    # Ein späterer Schritt könnte ein Paket als Abhängigkeit installiert haben.
+    if [[ $(dpkg-query -W -f='${Status}' -- "$package" 2>/dev/null || true) != 'install ok installed' ]]; then
+      still_missing+=("$package")
+    fi
+  done
+  if ((${#still_missing[@]} > 0)); then
+    printf '\nNoch nicht installierte Pakete aus packages.txt (kein APT-Kandidat):\n'
+    printf '  %s\n' "${still_missing[@]}"
+    printf 'Nach dem Einrichten weiterer Quellen das Script erneut starten und den Paket-Schritt wählen.\n'
   fi
 }
 
@@ -570,4 +606,5 @@ fi
 stow_dotfiles
 
 printf '\nAusgewählte Schritte abgeschlossen.\n'
+report_missing_packages
 finish_installation
