@@ -72,7 +72,7 @@ alias jrnl="journalctl"
 alias sjrnl="sudo journalctl"
 
 alias apu="sudo apt update"
-alias apg="sudo apt upgrade"
+alias apg="sudo apt upgrade --autoremove"
 alias aps="apt search --names-only"
 alias api="sudo apt install"
 
