@@ -48,11 +48,34 @@ prepare_downloads() {
   fi
 }
 
+# ANSI-Farben nur im Terminal verwenden. NO_COLOR (auch leer gesetzt) und
+# TERM=dumb schalten sie ab. Die RGB-Werte stammen aus Catppuccin Mocha.
+init_colors() {
+  color_heading='' color_yes='' color_muted='' color_reset=''
+  if [[ -t 1 && ! ${NO_COLOR+x} && ${TERM:-dumb} != dumb ]]; then
+    color_heading=$'\e[38;2;203;166;247m'
+    color_yes=$'\e[38;2;166;227;161m'
+    color_muted=$'\e[38;2;166;173;200m'
+    color_reset=$'\e[0m'
+  fi
+}
+
+section() {
+  printf '\n  %s%s%s\n' "$color_heading" "$1" "$color_reset"
+}
+
+hint() {
+  printf '    %s%s%s\n' "$color_muted" "$1" "$color_reset"
+}
+
 confirm() {
   # local begrenzt die Variable auf diese Funktion. $1 ist ihr erstes Argument.
   local answer
+  printf '\n  %s\n' "$1"
+  # Ein optionales zweites Argument erklärt den Schritt vor der Eingabe.
+  if [[ -n ${2:-} ]]; then hint "$2"; fi
   while true; do
-    printf '\n%s [J/n] ' "$1"
+    printf '    Antwort [J/n]: '
     # -r liest Backslashes unverändert; IFS= erhält die Eingabe unverändert.
     # Ein geschlossenes Eingabegerät (EOF) beendet das Script kontrolliert.
     if ! IFS= read -r answer; then
@@ -61,11 +84,72 @@ confirm() {
     fi
     # ${answer,,} wandelt in Kleinbuchstaben um; Enter bedeutet Ja.
     case "${answer,,}" in
-    j | ja | y | yes | '') return 0 ;;
-    n | nein | no) return 1 ;;
-    *) printf 'Bitte j oder n eingeben. Enter bestätigt den Schritt.\n' ;;
+    j | ja | y | yes | '')
+      printf '    %s✓ Ja%s\n' "$color_yes" "$color_reset"
+      return 0 ;;
+    n | nein | no)
+      printf '    %s– %s%s\n' "$color_muted" "${3:-Übersprungen}" "$color_reset"
+      return 1 ;;
+    *) hint 'Bitte j oder n eingeben. Enter bedeutet Ja.' ;;
     esac
   done
+}
+
+choose_griffo_variant() {
+  local answer
+  printf '\n    Welche Griffo-Variante möchtest du verwenden?\n'
+  hint '1  Öffentlich – kleinere Paketauswahl'
+  hint '2  Mit Abo – Zugangsdaten erforderlich'
+  while true; do
+    printf '    Auswahl [1/2] (Enter = 1): '
+    if ! IFS= read -r answer; then
+      printf '\nEingabe beendet; Installation abgebrochen.\n' >&2
+      exit 1
+    fi
+    case "$answer" in
+    1 | '')
+      use_paid_griffo=false
+      printf '    %s✓ Öffentlich%s\n' "$color_yes" "$color_reset"
+      return ;;
+    2)
+      use_paid_griffo=true
+      printf '    %s✓ Mit Abo%s\n' "$color_yes" "$color_reset"
+      return ;;
+    *) hint 'Bitte 1 oder 2 eingeben. Enter wählt das öffentliche Repository.' ;;
+    esac
+  done
+}
+
+summary_item() {
+  if "$1"; then
+    printf '  %s✓%s %s\n' "$color_yes" "$color_reset" "$2"
+  else
+    printf '  %s– %s (übersprungen)%s\n' "$color_muted" "$2" "$color_reset"
+  fi
+}
+
+show_summary() {
+  local griffo_label='Griffo-Repository'
+  if "$do_griffo"; then
+    if "$use_paid_griffo"; then
+      griffo_label+=' (mit Abo)'
+    else
+      griffo_label+=' (öffentlich)'
+    fi
+  fi
+  section 'AUSWAHL ABGESCHLOSSEN'
+  summary_item "$do_github" 'GitHub-CLI-Repository'
+  summary_item "$do_griffo" "$griffo_label"
+  summary_item "$do_packages" 'Pakete aus packages.txt'
+  summary_item "$do_fnm" 'fnm'
+  summary_item "$do_pnpm" 'pnpm'
+  summary_item "$do_codex" 'Codex CLI'
+  if "$do_codex"; then summary_item "$install_node" 'Node.js LTS bei Bedarf'; fi
+  summary_item "$do_login_shell" 'Zsh als Login-Shell'
+  summary_item "$do_zap" 'Zap für Zsh'
+  summary_item "$do_stow" 'Dotfiles mit Stow verknüpfen'
+  summary_item "$install_dependencies" 'Fehlende Hilfsprogramme automatisch installieren'
+  summary_item "$start_zsh" 'Zsh am Ende starten'
 }
 
 ensure_tools() {
@@ -181,7 +265,7 @@ collect_griffo_auth() {
   local auth_file=/etc/apt/auth.conf.d/deb.griffo.io.conf
 
   if sudo test -s "$auth_file"; then
-    if confirm 'Vorhandene Griffo-Zugangsdaten beibehalten?'; then
+    if confirm 'Vorhandene Griffo-Zugangsdaten beibehalten?' '' 'Neu eingeben'; then
       keep_griffo_auth=true
       return
     fi
@@ -190,7 +274,7 @@ collect_griffo_auth() {
   # APT trennt Felder durch Leerzeichen. Anführungszeichen und Backslashes
   # wären ebenfalls Formatzeichen; solche Eingaben nicht still verfälschen.
   while true; do
-    printf 'Griffo-Benutzername: '
+    printf '    Griffo-Benutzername: '
     if ! IFS= read -r griffo_username; then
       printf '\nEingabe beendet; Installation abgebrochen.\n' >&2
       exit 1
@@ -201,7 +285,7 @@ collect_griffo_auth() {
     printf 'Bitte einen nicht leeren Benutzernamen ohne Leerraum, " oder Backslash eingeben.\n'
   done
   while true; do
-    printf 'Griffo-Passwort (Eingabe unsichtbar): '
+    printf '    Griffo-Passwort (Eingabe unsichtbar): '
     # -s unterdrückt die Anzeige, -r liest Backslashes unverändert.
     if ! IFS= read -r -s griffo_password; then
       printf '\nEingabe beendet; Installation abgebrochen.\n' >&2
@@ -596,40 +680,55 @@ finish_installation() {
 # Erst alle Entscheidungen speichern. true/false sind Bash-Befehle und lassen
 # sich später direkt in if-Bedingungen verwenden. Enter bedeutet weiterhin Ja.
 collect_choices() {
+  local package_dir
+  local -a stow_labels=()
   do_github=false do_griffo=false use_paid_griffo=false keep_griffo_auth=false
   do_packages=false do_login_shell=false do_fnm=false do_pnpm=false
   do_codex=false install_node=false do_zap=false do_stow=false
   install_dependencies=false start_zsh=false
-  printf 'Dotfiles-Installation: Zuerst alle Fragen beantworten, danach läuft die Installation automatisch.\n'
-  printf 'Enter bedeutet Ja; n überspringt.\n'
-  if confirm 'GitHub-CLI-Repository hinzufügen?'; then do_github=true; fi
-  if confirm 'Griffo-Repository einrichten (öffentlich oder mit Abo)?'; then
+  section 'Dotfiles einrichten'
+  hint 'Beantworte zuerst die Fragen. Danach läuft alles automatisch.'
+  hint 'Enter = Ja · n = Nein'
+
+  section 'PAKETQUELLEN'
+  if confirm 'GitHub-CLI-Repository hinzufügen?' \
+    'Stellt GitHub CLI über die offizielle Paketquelle bereit.'; then do_github=true; fi
+  if confirm 'Griffo-Repository einrichten?'; then
     do_griffo=true
-    if confirm 'Griffo-Zugangsdaten vorhanden (kostenpflichtiges Repository verwenden)?'; then
-      use_paid_griffo=true
-    fi
+    choose_griffo_variant
   fi
-  printf '\nPaketliste (Kommentare und Leerzeilen werden ausgelassen):\n'
-  sed '/^[[:space:]]*#/d; /^[[:space:]]*$/d' packages.txt
-  if confirm 'Paketlisten aktualisieren und Pakete aus packages.txt installieren?'; then do_packages=true; fi
-  if confirm 'zsh als Standard-Shell für diesen Benutzer eintragen?'; then do_login_shell=true; fi
-  if confirm 'fnm installieren?'; then do_fnm=true; fi
-  if confirm 'pnpm installieren?'; then do_pnpm=true; fi
-  if confirm 'Codex CLI (@openai/codex) global mit pnpm installieren?'; then
+
+  section 'PROGRAMME'
+  if confirm 'Pakete aus packages.txt installieren?' \
+    'Aktualisiert zuerst die Paketlisten. Die Paketauswahl erscheint beim Installieren.'; then do_packages=true; fi
+  if confirm 'fnm installieren?' 'Verwaltet deine Node.js-Versionen.'; then do_fnm=true; fi
+  if confirm 'pnpm installieren?' 'Paketmanager für JavaScript und TypeScript.'; then do_pnpm=true; fi
+  if confirm 'Codex CLI installieren?' 'Installiert @openai/codex global für deinen Benutzer mit pnpm.'; then
     do_codex=true
-    if confirm 'Falls nötig: Node.js LTS mit fnm installieren und als fnm-Standard setzen?'; then install_node=true; fi
+    if confirm 'Node.js LTS bei Bedarf einrichten?' \
+      'Installiert Node.js mit fnm und setzt es als fnm-Standard, falls keine nutzbare Version bereitsteht.'; then install_node=true; fi
   fi
-  if confirm 'zap für Zsh installieren (bestehende .zshrc behalten)?'; then do_zap=true; fi
-  printf '\nStow-Pakete für %s:\n' "$HOME"
-  printf '  %s\n' */
-  if confirm 'Alle diese Dotfiles mit Stow verknüpfen?'; then do_stow=true; fi
+
+  section 'SHELL UND DOTFILES'
+  if confirm 'Zsh als Standard-Shell eintragen?' 'Gilt nach vollständigem Ab- und Anmelden.'; then do_login_shell=true; fi
+  if confirm 'Zap für Zsh installieren?' 'Deine bestehende .zshrc bleibt erhalten.'; then do_zap=true; fi
+  for package_dir in */; do
+    [[ -d "$package_dir" ]] || continue
+    stow_labels+=("${package_dir%/}")
+  done
+  if confirm 'Dotfiles mit Stow verknüpfen?' \
+    "Ziel: $HOME · Pakete: ${stow_labels[*]:-keine}"; then do_stow=true; fi
+
+  section 'ABLAUF UND ABSCHLUSS'
   if "$do_github" || "$do_griffo" || "$do_fnm" || "$do_pnpm" || "$do_zap" || "$do_stow"; then
-    if confirm 'Fehlende Hilfsprogramme bei gewählten Schritten automatisch über APT installieren?'; then install_dependencies=true; fi
+    if confirm 'Fehlende Hilfsprogramme automatisch installieren?' \
+      'Erlaubt APT, benötigte Werkzeuge für die gewählten Schritte nachzuinstallieren.'; then install_dependencies=true; fi
   fi
-  if confirm 'Am Ende mit exec zsh eine zsh mit den neuen Einstellungen starten?'; then start_zsh=true; fi
+  if confirm 'Am Ende Zsh starten?' 'Lädt die neuen Shell-Einstellungen in diesem Terminal.'; then start_zsh=true; fi
 
   if "$do_github" || "$do_griffo" || "$do_packages" || "$do_login_shell" || "$install_dependencies"; then
-    printf '\nSudo-Zugang für die gewählten Systemschritte bestätigen:\n'
+    section 'ZUGANGSDATEN'
+    hint 'Sudo jetzt bestätigen, damit die Systemschritte später ohne Rückfragen laufen.'
     command sudo -v
     # Den Zeitstempel auch während längerer Downloads frisch halten. Bei einem
     # Fehler fordert -n kein Passwort an; der nächste Systemschritt bricht ab.
@@ -639,8 +738,10 @@ collect_choices() {
   if "$use_paid_griffo"; then collect_griffo_auth; fi
 }
 
+init_colors
 collect_choices
-printf '\nAbfragen abgeschlossen. Die gewählten Schritte werden jetzt ausgeführt.\n'
+show_summary
+section 'Installation startet …'
 
 # Funktionen normal aufrufen, damit set -e bei Installationsfehlern greift.
 if "$do_github"; then
