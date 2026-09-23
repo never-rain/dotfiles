@@ -23,10 +23,16 @@ fi
 # Temporäre Downloads werden auch bei einem Fehler wieder entfernt.
 # Das Verzeichnis wird erst angelegt, wenn tatsächlich ein Download nötig ist.
 temp_dir=''
+sudo_keepalive_pid=''
 # Global, damit die am Paket-Schritt übersprungenen Namen am Ende verfügbar sind.
 missing_packages=()
 
 cleanup_downloads() {
+  if [[ -n "$sudo_keepalive_pid" ]]; then
+    kill "$sudo_keepalive_pid" 2>/dev/null || true
+    wait "$sudo_keepalive_pid" 2>/dev/null || true
+    sudo_keepalive_pid=''
+  fi
   if [[ -n "$temp_dir" ]]; then
     rm -rf -- "$temp_dir"
     temp_dir=''
@@ -82,7 +88,7 @@ ensure_tools() {
   fi
 
   printf 'Für diesen Schritt fehlen: %s\n' "${missing[*]}"
-  if ! confirm 'Diese Abhängigkeiten zuerst über apt installieren?'; then
+  if ! "$install_dependencies"; then
     printf 'Schritt wegen fehlender Abhängigkeiten übersprungen.\n'
     return 1
   fi
@@ -90,7 +96,19 @@ ensure_tools() {
   # set -e nicht wie sonst: Deshalb behandeln wir Fehler hier ausdrücklich.
   # Auch vorübergehend unerreichbare Quellen sollen den Ablauf stoppen.
   sudo apt-get update --error-on=any || exit 1
-  sudo apt-get install -- "${missing[@]}" || exit 1
+  apt_install "${missing[@]}" || exit 1
+}
+
+# Nach der Anfangsabfrage darf sudo keine weitere Passworteingabe verlangen.
+sudo() {
+  command sudo -n "$@"
+}
+
+apt_install() {
+  # Bestehende Konfigurationsdateien bei dpkg-Konflikten behalten.
+  sudo env DEBIAN_FRONTEND=noninteractive NEEDRESTART_MODE=a \
+    apt-get -y -o Dpkg::Options::=--force-confdef \
+    -o Dpkg::Options::=--force-confold install -- "$@"
 }
 
 repo_exists() {
@@ -157,18 +175,14 @@ add_github_repo() {
   sudo install -m 0644 "$temp_dir/github-cli.list" /etc/apt/sources.list.d/github-cli.list
 }
 
-configure_griffo_auth() (
-  # Runde Klammern starten eine Subshell: Variablen und umask gelten nur hier.
+collect_griffo_auth() {
   # Auch bei bash -x dürfen Zugangsdaten nicht im Debug-Protokoll erscheinen.
   set +x
-  umask 077
   local auth_file=/etc/apt/auth.conf.d/deb.griffo.io.conf
-  local griffo_username griffo_password
 
   if sudo test -s "$auth_file"; then
     if confirm 'Vorhandene Griffo-Zugangsdaten beibehalten?'; then
-      sudo chown root:root "$auth_file"
-      sudo chmod 0600 "$auth_file"
+      keep_griffo_auth=true
       return
     fi
   fi
@@ -199,7 +213,18 @@ configure_griffo_auth() (
     fi
     printf 'Bitte ein nicht leeres Passwort ohne Leerraum, " oder Backslash eingeben.\n'
   done
+}
 
+configure_griffo_auth() (
+  # Runde Klammern begrenzen umask auf diese Funktion; keine Zugangsdaten loggen.
+  set +x
+  umask 077
+  local auth_file=/etc/apt/auth.conf.d/deb.griffo.io.conf
+  if "$keep_griffo_auth"; then
+    sudo chown root:root "$auth_file"
+    sudo chmod 0600 "$auth_file"
+    return
+  fi
   # Das private mktemp-Verzeichnis liegt ausserhalb des Checkouts. printf ist
   # ein Bash-Builtin: Die Werte werden nicht als externe Prozessargumente sichtbar.
   printf 'machine deb.griffo.io\nlogin %s\npassword %s\n' \
@@ -233,9 +258,10 @@ add_griffo_repo() {
   prepare_downloads
   # Zugangsdaten vor jedem möglichen APT-Aufruf einrichten, auch wenn das
   # Repository schon existiert oder Abhängigkeiten nachinstalliert werden müssen.
-  if confirm 'Griffo-Zugangsdaten vorhanden (kostenpflichtiges Repository verwenden)?'; then
+  if "$use_paid_griffo"; then
     griffo_host=deb.griffo.io
     configure_griffo_auth
+    unset griffo_username griffo_password
   else
     printf 'Öffentliches Griffo-Repository gewählt; es enthält weniger Pakete.\n'
   fi
@@ -289,7 +315,7 @@ install_packages() {
   fi
   printf '\nPakete aus packages.txt:\n'
   printf '  %s\n' "${packages[@]}"
-  if confirm 'Paketlisten aktualisieren und diese Pakete installieren?'; then
+  if "$do_packages"; then
     sudo apt-get update --error-on=any
     for package in "${packages[@]}"; do
       # policy berücksichtigt die aktivierten Quellen und APT-Prioritäten.
@@ -306,9 +332,8 @@ install_packages() {
       fi
     done
     if ((${#available_packages[@]} > 0)); then
-      # Ohne -y: APT zeigt seinen Plan. Echte Installationsfehler brechen weiter
-      # ab; nur Pakete ohne Kandidat werden vor diesem Aufruf aussortiert.
-      sudo apt-get install -- "${available_packages[@]}"
+      # Die Installation wurde bereits am Anfang bestätigt.
+      apt_install "${available_packages[@]}"
     fi
   fi
 }
@@ -360,9 +385,9 @@ set_zsh_as_login_shell() {
   fi
 
   printf '\nLogin-Shell für %s: %s → %s\n' "$username" "$current_shell" "$zsh_path"
-  if confirm 'zsh als Standard-Shell für diesen Benutzer eintragen?'; then
-    # Ohne sudo: chsh ändert nur dein Konto und kann dein Passwort abfragen.
-    chsh --shell "$zsh_path" "$username"
+  if "$do_login_shell"; then
+    # Mit sudo entfällt die zusätzliche Passwortabfrage von chsh.
+    sudo chsh --shell "$zsh_path" "$username"
     passwd_entry=$(getent passwd "$username")
     if [[ ! "${passwd_entry##*:}" -ef "$zsh_path" ]]; then
       printf 'Die neue Login-Shell konnte nicht bestätigt werden.\n' >&2
@@ -460,7 +485,7 @@ ensure_node_for_codex() {
     printf 'Vorhandene fnm-Standardversion von Node.js aktiviert.\n'
     return 0
   fi
-  if ! confirm 'Node.js LTS mit fnm installieren, aktivieren und als fnm-Standard setzen?'; then
+  if ! "$install_node"; then
     printf 'Codex-Schritt wegen fehlendem Node.js übersprungen.\n'
     return 1
   fi
@@ -528,9 +553,6 @@ stow_dotfiles() {
 
   printf '\nStow-Pakete für %s:\n' "$HOME"
   printf '  %s\n' "${stow_packages[@]}"
-  if ! confirm 'Alle diese Dotfiles mit Stow verknüpfen?'; then
-    return
-  fi
   if ! ensure_tools stow; then return; fi
 
   # --dir ist das Repository, --target immer das Home-Verzeichnis. Dadurch
@@ -554,7 +576,7 @@ stow_dotfiles() {
 }
 
 finish_installation() {
-  if ! confirm 'Jetzt mit exec zsh eine zsh mit den neuen Einstellungen starten?'; then
+  if ! "$start_zsh"; then
     return
   fi
   if ! command -v zsh >/dev/null; then
@@ -571,39 +593,85 @@ finish_installation() {
   exec zsh
 }
 
-# Der Hauptablauf liest sich wie eine Checkliste. Funktionen werden hier normal
-# aufgerufen (nicht als if-Test), damit Fehler den Ablauf mit set -e stoppen.
-printf 'Dotfiles-Installation: Jeder Schritt ist optional. Enter bedeutet Ja; n überspringt.\n'
+# Erst alle Entscheidungen speichern. true/false sind Bash-Befehle und lassen
+# sich später direkt in if-Bedingungen verwenden. Enter bedeutet weiterhin Ja.
+collect_choices() {
+  do_github=false do_griffo=false use_paid_griffo=false keep_griffo_auth=false
+  do_packages=false do_login_shell=false do_fnm=false do_pnpm=false
+  do_codex=false install_node=false do_zap=false do_stow=false
+  install_dependencies=false start_zsh=false
+  printf 'Dotfiles-Installation: Zuerst alle Fragen beantworten, danach läuft die Installation automatisch.\n'
+  printf 'Enter bedeutet Ja; n überspringt.\n'
+  if confirm 'GitHub-CLI-Repository hinzufügen?'; then do_github=true; fi
+  if confirm 'Griffo-Repository einrichten (öffentlich oder mit Abo)?'; then
+    do_griffo=true
+    if confirm 'Griffo-Zugangsdaten vorhanden (kostenpflichtiges Repository verwenden)?'; then
+      use_paid_griffo=true
+    fi
+  fi
+  printf '\nPaketliste (Kommentare und Leerzeilen werden ausgelassen):\n'
+  sed '/^[[:space:]]*#/d; /^[[:space:]]*$/d' packages.txt
+  if confirm 'Paketlisten aktualisieren und Pakete aus packages.txt installieren?'; then do_packages=true; fi
+  if confirm 'zsh als Standard-Shell für diesen Benutzer eintragen?'; then do_login_shell=true; fi
+  if confirm 'fnm installieren?'; then do_fnm=true; fi
+  if confirm 'pnpm installieren?'; then do_pnpm=true; fi
+  if confirm 'Codex CLI (@openai/codex) global mit pnpm installieren?'; then
+    do_codex=true
+    if confirm 'Falls nötig: Node.js LTS mit fnm installieren und als fnm-Standard setzen?'; then install_node=true; fi
+  fi
+  if confirm 'zap für Zsh installieren (bestehende .zshrc behalten)?'; then do_zap=true; fi
+  printf '\nStow-Pakete für %s:\n' "$HOME"
+  printf '  %s\n' */
+  if confirm 'Alle diese Dotfiles mit Stow verknüpfen?'; then do_stow=true; fi
+  if "$do_github" || "$do_griffo" || "$do_fnm" || "$do_pnpm" || "$do_zap" || "$do_stow"; then
+    if confirm 'Fehlende Hilfsprogramme bei gewählten Schritten automatisch über APT installieren?'; then install_dependencies=true; fi
+  fi
+  if confirm 'Am Ende mit exec zsh eine zsh mit den neuen Einstellungen starten?'; then start_zsh=true; fi
 
-if confirm 'GitHub-CLI-Repository hinzufügen?'; then
+  if "$do_github" || "$do_griffo" || "$do_packages" || "$do_login_shell" || "$install_dependencies"; then
+    printf '\nSudo-Zugang für die gewählten Systemschritte bestätigen:\n'
+    command sudo -v
+    # Den Zeitstempel auch während längerer Downloads frisch halten. Bei einem
+    # Fehler fordert -n kein Passwort an; der nächste Systemschritt bricht ab.
+    (while sleep 30; do command sudo -n -v || exit; done) &
+    sudo_keepalive_pid=$!
+  fi
+  if "$use_paid_griffo"; then collect_griffo_auth; fi
+}
+
+collect_choices
+printf '\nAbfragen abgeschlossen. Die gewählten Schritte werden jetzt ausgeführt.\n'
+
+# Funktionen normal aufrufen, damit set -e bei Installationsfehlern greift.
+if "$do_github"; then
   add_github_repo
 fi
 
-if confirm 'Griffo-Repository einrichten (öffentlich oder mit Abo)?'; then
+if "$do_griffo"; then
   add_griffo_repo
 fi
 
-install_packages
+if "$do_packages"; then install_packages; fi
 
-set_zsh_as_login_shell
+if "$do_login_shell"; then set_zsh_as_login_shell; fi
 
-if confirm 'fnm installieren?'; then
+if "$do_fnm"; then
   install_fnm
 fi
 
-if confirm 'pnpm installieren?'; then
+if "$do_pnpm"; then
   install_pnpm
 fi
 
-if confirm 'Codex CLI (@openai/codex) global mit pnpm installieren?'; then
+if "$do_codex"; then
   install_codex
 fi
 
-if confirm 'zap für Zsh installieren (bestehende .zshrc behalten)?'; then
+if "$do_zap"; then
   install_zap
 fi
 
-stow_dotfiles
+if "$do_stow"; then stow_dotfiles; fi
 
 printf '\nAusgewählte Schritte abgeschlossen.\n'
 report_missing_packages
