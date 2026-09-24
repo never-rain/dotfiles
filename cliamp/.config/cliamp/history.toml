@@ -1,17 +1,38 @@
 [[entry]]
-played_at = "2026-09-22T05:46:54Z"
-path = "https://radio.cliamp.stream/meditative/stream"
-title = "Meditative"
+played_at = "2026-09-23T19:19:11Z"
+path = "https://radio.cliamp.stream/ncs-trap/stream"
+title = "NCS Trap"
 
 [[entry]]
-played_at = "2026-09-11T21:22:15Z"
+played_at = "2026-09-23T19:19:04Z"
+path = "https://radio.cliamp.stream/ncs-house/stream"
+title = "NCS House"
+
+[[entry]]
+played_at = "2026-09-23T19:18:40Z"
+path = "http://pr320.pinguinradio.com/"
+title = "Pinguin Radio [320k] · Netherlands"
+genre = "alternative rock,community radio,indie pop,pinguinradio"
+
+[[entry]]
+played_at = "2026-09-23T19:17:18Z"
+path = "https://radio.cliamp.stream/lofi/stream"
+title = "Lofi"
+
+[[entry]]
+played_at = "2026-09-23T19:16:55Z"
+path = "https://radio.cliamp.stream/edm/stream"
+title = "EDM"
+
+[[entry]]
+played_at = "2026-09-23T19:14:50Z"
 path = "https://radio.cliamp.stream/synthwave/stream"
 title = "Synthwave"
 
 [[entry]]
-played_at = "2026-09-10T18:04:11Z"
-path = "https://radio.cliamp.stream/lofi/stream"
-title = "Lofi"
+played_at = "2026-09-22T05:46:54Z"
+path = "https://radio.cliamp.stream/meditative/stream"
+title = "Meditative"
 
 [[entry]]
 played_at = "2026-09-08T16:51:08Z"
