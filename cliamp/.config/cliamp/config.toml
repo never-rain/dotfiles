@@ -1,5 +1,12 @@
 theme = "catppuccin"
 
 visualizer = "ClassicPeak"
+show_metadata = true
+hide_settings_pane = false
+eq_preset = "Bass Boost"
+eq = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 [radio]
 country = "CH"
+
+[ytmusic]
+enabled = false
