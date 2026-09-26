@@ -126,6 +126,8 @@ hl.device({
 	sensitivity = -0.5,
 })
 
+local hyprshot = os.getenv("HOME") .. "/.local/bin/hyprshot"
+
 hl.bind(mainMod .. " + SHIFT + M", hl.dsp.layout("swapwithmaster master ignoremaster"))
 hl.bind(mainMod .. " + W", hl.dsp.exec_cmd("orbit toggle"))
 hl.bind(mainMod .. " + N", hl.dsp.exec_cmd(terminal))
@@ -147,6 +149,9 @@ hl.bind(mainMod .. " + P", hl.dsp.window.pseudo())
 hl.bind(mainMod .. " + J", hl.dsp.layout("togglesplit"))
 hl.bind(mainMod .. " + L", hl.dsp.exec_cmd("hyprlock"))
 hl.bind(mainMod .. " + SHIFT + F", hl.dsp.window.fullscreen({ mode = "fullscreen", action = "toggle" }))
+hl.bind(mainMod .. " + SHIFT + R", hl.dsp.exec_cmd(hyprshot .. " -m region"), {description = "Region screenshot"})
+hl.bind(mainMod .. " + SHIFT + W", hl.dsp.exec_cmd(hyprshot .. " -m window"), {description = "Window screenshot"})
+hl.bind(mainMod .. " + SHIFT + S", hl.dsp.exec_cmd(hyprshot .. " -m output"), {description = "Full screenshot"})
 
 local resizeStep = 5
 
