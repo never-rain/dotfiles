@@ -15,11 +15,11 @@
 # Lokale WeeChat-Zugangsdaten
 weechat/.config/weechat/sec.conf
 
+# Lokale CLIAMP-Historie
+cliamp/.config/cliamp/history.toml
+
 # Von vim-plug installierte Plugins
 vim/.vim/plugged/
-
-# cliamp Histroy
-cliamp/.config/cliamp/histroy.toml
 
 # Vim-Laufzeitdaten
 vim/.vim/backup/*
