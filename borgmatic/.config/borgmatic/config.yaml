@@ -15,3 +15,13 @@ exclude_patterns:
 exclude_caches: true
 exclude_if_present:
   - .nobackup
+
+keep_weekly: 8
+keep_monthly: 12
+keep_yearly: 3
+
+checks:
+  - name: repository
+    frequency: 1 month
+  - name: archives
+    frequency: 1 month

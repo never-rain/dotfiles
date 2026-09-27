@@ -57,9 +57,9 @@ alias co="codex"
 alias m="tmatrix -c default"
 alias lg="lazygit"
 if (( $+commands[batcat] )); then
-  alias cat='batcat'
+  alias cat='batcat --plain'
 elif (( $+commands[bat] )); then
-  alias cat='bat'
+  alias cat='bat --plain'
 fi
 alias e="exit"
 alias q="exit"
