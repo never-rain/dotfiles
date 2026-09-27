@@ -1,0 +1,11 @@
+[Unit]
+Description=Weekly backup on Sunday at 18:00
+
+[Timer]
+OnCalendar=Sun *-*-* 18:00:00
+Persistent=true
+AccuracySec=1s
+
+[Install]
+WantedBy=timers.target
+

@@ -12,6 +12,9 @@
 
 .env
 
+# Lokale WeeChat-Zugangsdaten
+/weechat/.config/weechat/sec.conf
+
 # Von vim-plug installierte Plugins
 vim/.vim/plugged/
 

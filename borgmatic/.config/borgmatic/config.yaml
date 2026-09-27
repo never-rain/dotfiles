@@ -1,31 +1,17 @@
----
-repositories:
-  - path: ssh://darkstar-backup@backup-server/mnt/backup/darkstar-arch
-    label: BackupServer
+encryption_passcommand: sh -c 'cat "$HOME/.local/share/borgmatic/passphrase"'
 source_directories:
-  - /home/darkstar
-  - /etc
-  - /boot
-  - /root
-  - /usr/share/fonts
-  - /var/log
+  - /home/heavyrain
+repositories:
+  - path: ssh://backup-server/srv/data/Backups/darkstar-backup/Data
+    label: Backup Server
+    encryption: repokey-blake2
 exclude_patterns:
-  - '**/node_modules'
-  - '**/.cache'
-  - '**/.npm'
-  - '**/.mozilla'
-  - /home/darkstar/Private Data
-keep_daily: 7
-keep_weekly: 4
-keep_monthly: 6
-checks:
-  - name: repository
-  - name: archives
-  - name: data
-    frequency: 2 weeks
+  - "sh:**/node_modules"
+  - "sh:home/*/.cache"
+  - "sh:home/*/.local/share/Trash"
+  - "sh:home/*/.npm"
+  - "sh:home/*/.cargo/registry"
+  - "sh:home/*/.cargo/git"
 exclude_caches: true
-encryption_passcommand: systemd-creds decrypt /etc/systemd/credentials/borgmatic
-healthchecks:
-  ping_url: https://hc-ping.com/d3029bd3-7f3f-41ef-895e-b595f6a46a18
-  send_logs: false
-  states: [finish]
+exclude_if_present:
+  - .nobackup

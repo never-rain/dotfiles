@@ -1,0 +1,13 @@
+#!/bin/sh
+# systemd supplies SERVICE_RESULT to ExecStopPost.
+case "${SERVICE_RESULT:-unknown}" in
+    success)
+        exec /usr/bin/notify-send --app-name=borgmatic --urgency=normal \
+            'Backup abgeschlossen' 'Das geplante Borg-Backup wurde erfolgreich erstellt.'
+        ;;
+    *)
+        exec /usr/bin/notify-send --app-name=borgmatic --urgency=critical \
+            'Backup fehlgeschlagen' \
+            'Details: journalctl --user -u borgmatic-backup.service -n 80'
+        ;;
+esac

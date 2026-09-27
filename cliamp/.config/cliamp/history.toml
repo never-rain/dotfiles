@@ -1,4 +1,9 @@
 [[entry]]
+played_at = "2026-09-27T08:12:08Z"
+path = "https://radio.cliamp.stream/lofi/stream"
+title = "Lofi"
+
+[[entry]]
 played_at = "2026-09-23T19:19:11Z"
 path = "https://radio.cliamp.stream/ncs-trap/stream"
 title = "NCS Trap"
@@ -13,11 +18,6 @@ played_at = "2026-09-23T19:18:40Z"
 path = "http://pr320.pinguinradio.com/"
 title = "Pinguin Radio [320k] · Netherlands"
 genre = "alternative rock,community radio,indie pop,pinguinradio"
-
-[[entry]]
-played_at = "2026-09-23T19:17:18Z"
-path = "https://radio.cliamp.stream/lofi/stream"
-title = "Lofi"
 
 [[entry]]
 played_at = "2026-09-23T19:16:55Z"
