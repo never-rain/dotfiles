@@ -1,4 +1,10 @@
 [[entry]]
+played_at = "2026-09-27T08:42:49Z"
+path = "http://stream.srg-ssr.ch/m/drs4news/mp3_128"
+title = "SRF 4 News [128k] · Switzerland"
+genre = "news,public radio,srg ssr"
+
+[[entry]]
 played_at = "2026-09-27T08:12:08Z"
 path = "https://radio.cliamp.stream/lofi/stream"
 title = "Lofi"
