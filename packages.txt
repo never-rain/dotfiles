@@ -25,6 +25,7 @@ meson
 nano
 neovim
 ninja-build
+nmon
 ripgrep
 rsync
 starship
