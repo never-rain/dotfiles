@@ -45,6 +45,7 @@ function t {
 
 # Misc aliases
 alias spider="telnet dx.da0bcc.de 7300"
+alias nmon="NMON=lncjJ nmon -B -s 1"
 alias c="clear"
 alias lts="eza -1lga --icons=auto --git --total-size"
 alias l="eza -1lga --icons=auto --git"
