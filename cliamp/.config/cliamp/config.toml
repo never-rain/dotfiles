@@ -1,6 +1,6 @@
 theme = "catppuccin"
 
-visualizer = "ClassicPeak"
+visualizer = "Bars"
 show_metadata = true
 hide_settings_pane = false
 eq_preset = "Bass Boost"
