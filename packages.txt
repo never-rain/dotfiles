@@ -1,5 +1,6 @@
 bat
 borgbackup
+btm
 btop
 cargo
 cava
@@ -9,6 +10,7 @@ cliamp
 cmake
 cron
 curl
+difftastic
 eza
 fastfetch
 fd-find
@@ -28,14 +30,17 @@ ninja-build
 nmon
 ripgrep
 rsync
+serie
 starship
 stow
+superfile
 sway-notification-center
 telnet
 tmatrix
 tree
 unzip
 vim
+viu
 w3m
 w3m-el
 w3m-img
