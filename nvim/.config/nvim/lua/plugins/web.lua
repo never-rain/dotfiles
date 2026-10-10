@@ -22,10 +22,10 @@ return {
   },
   {
     "stevearc/conform.nvim",
-    opts = {
-      formatters_by_ft = {
-        html = { "biome-check" },
-      },
-    },
+    opts = function(_, opts)
+      opts.formatters_by_ft = opts.formatters_by_ft or {}
+      opts.formatters_by_ft.html = { "biome-check" }
+      opts.formatters_by_ft.astro = { "prettier" }
+    end,
   },
 }

@@ -55,6 +55,8 @@ alias v="vim"
 alias nv="nvim"
 alias y="yazi"
 alias co="codex"
+alias pnpmup="pnpm self-update"
+alias coup="pnpm add -g @openai/codex"
 alias m="tmatrix -c default"
 alias lg="lazygit"
 if (( $+commands[batcat] )); then

@@ -50,8 +50,18 @@ hl.config({
     inactive_opacity = 0.75,
     motion_blur = {
       enabled = true,
-      samples = 7,
+      samples = 64,
     },
+    --wobble = {
+    --enabled = true,
+    --mesh = 12,
+    --stiffness = 200,
+    --damping = 12,
+    --mass = 1,
+    --intensity = 0.2,
+    --value_epsilon = 0.25,
+    --velocity_epsilon = 2,
+    --},
     blur = {
       enabled = true,
       -- noise = 0.1,
